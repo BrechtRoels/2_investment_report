@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Portfolio Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .chart-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .investments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .investment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+
+        .investment-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .investment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .investment-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .investment-symbol {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 600;
+            background: #f0f4ff;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .investment-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .detail {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 50px;
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .investments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💎 Investment Portfolio</h1>
+            <p>Track your investments in real-time</p>
+        </header>
+
+        <div id="loading" class="loading pulse">
+            Loading your portfolio...
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="dashboard">
+                <div class="stat-card">
+                    <div class="stat-label">Total Value</div>
+                    <div class="stat-value" id="totalValue">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Today's Gain/Loss</div>
+                    <div class="stat-value" id="totalGain">$0.00</div>
+                    <div class="stat-change" id="gainPercentage">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Investments</div>
+                    <div class="stat-value" id="investmentCount">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>Portfolio Performance (30 Days)</h2>
+                <canvas id="portfolioChart"></canvas>
+            </div>
+
+            <div class="investments-grid" id="investmentsGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadPortfolio() {
+            try {
+                const response = await fetch('/api/portfolio');
+                const data = await response.json();
+
+                document.getElementById('totalValue').textContent = `$${data.total_value.toLocaleString()}`;
+                document.getElementById('totalGain').textContent = `$${data.total_gain.toLocaleString()}`;
+
+                const gainPercentageEl = document.getElementById('gainPercentage');
+                const isPositive = data.gain_percentage >= 0;
+                gainPercentageEl.textContent = `${isPositive ? '+' : ''}${data.gain_percentage}%`;
+                gainPercentageEl.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+
+                document.getElementById('investmentCount').textContent = data.investments.length;
+
+                const investmentsGrid = document.getElementById('investmentsGrid');
+                investmentsGrid.innerHTML = data.investments.map(inv => {
+                    const value = inv.shares * inv.price;
+                    const isPositive = inv.change >= 0;
+                    return `
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-name">${inv.name}</div>
+                                <div class="investment-symbol">${inv.symbol}</div>
+                            </div>
+                            <div class="investment-details">
+                                <div class="detail">
+                                    <div class="detail-label">Shares</div>
+                                    <div class="detail-value">${inv.shares}</div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-label">Price</div>
+                                    <div class="detail-value">$${inv.price.toFixed(2)}</div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-label">Change</div>
+                                    <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
+                                        ${isPositive ? '+' : ''}${inv.change}%
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-label">Value</div>
+                                    <div class="detail-value">$${value.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+                document.getElementById('loading').textContent = 'Error loading portfolio data';
+            }
+        }
+
+        async function loadChart() {
+            try {
+                const response = await fetch('/api/chart-data');
+                const data = await response.json();
+
+                const ctx = document.getElementById('portfolioChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(d => d.date),
+                        datasets: [{
+                            label: 'Portfolio Value',
+                            data: data.map(d => d.value),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `$${context.parsed.y.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading chart:', error);
+            }
+        }
+
+        loadPortfolio();
+        loadChart();
+    </script>
+</body>
+</html>
