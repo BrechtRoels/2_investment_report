@@ -31,6 +31,14 @@
             color: white;
             margin-bottom: 40px;
             padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
         }
 
         header h1 {
@@ -43,6 +51,60 @@
         header p {
             font-size: 1.2rem;
             opacity: 0.9;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            margin: 0 5px;
         }
 
         .dashboard {
@@ -149,13 +211,14 @@
         }
 
         .investment-details {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             margin-top: 15px;
         }
 
         .detail {
-            text-align: center;
+            text-align: left;
         }
 
         .detail-label {
@@ -170,6 +233,12 @@
             font-size: 1.1rem;
             font-weight: 600;
             color: #333;
+        }
+
+        .investment-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
 
         .loading {
@@ -192,7 +261,148 @@
             }
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .close {
+            font-size: 2rem;
+            font-weight: 300;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideInRight 0.3s ease;
+            z-index: 2000;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
         @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
             header h1 {
                 font-size: 2rem;
             }
@@ -208,14 +418,22 @@
             .investments-grid {
                 grid-template-columns: 1fr;
             }
+
+            .investment-details {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>💎 Investment Portfolio</h1>
-            <p>Track your investments in real-time</p>
+            <div></div>
+            <div class="header-content">
+                <h1>💎 Investment Portfolio</h1>
+                <p>Track your investments in real-time</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add Investment</button>
         </header>
 
         <div id="loading" class="loading pulse">
@@ -229,7 +447,7 @@
                     <div class="stat-value" id="totalValue">$0.00</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Today's Gain/Loss</div>
+                    <div class="stat-label">Total Gain/Loss</div>
                     <div class="stat-value" id="totalGain">$0.00</div>
                     <div class="stat-change" id="gainPercentage">0%</div>
                 </div>
@@ -248,7 +466,143 @@
         </div>
     </div>
 
+    <!-- Add/Edit Investment Modal -->
+    <div id="investmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Investment</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="investmentForm" onsubmit="saveInvestment(event)">
+                <input type="hidden" id="investmentId">
+                <div class="form-group">
+                    <label for="name">Investment Name *</label>
+                    <input type="text" id="name" required placeholder="e.g., Tech Growth Fund">
+                </div>
+                <div class="form-group">
+                    <label for="symbol">Symbol *</label>
+                    <input type="text" id="symbol" required placeholder="e.g., TGF" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="shares">Number of Shares *</label>
+                    <input type="number" id="shares" required min="1" placeholder="e.g., 100">
+                </div>
+                <div class="form-group">
+                    <label for="purchasePrice">Purchase Price (per share) *</label>
+                    <input type="number" id="purchasePrice" required step="0.01" min="0" placeholder="e.g., 150.00">
+                </div>
+                <div class="form-group">
+                    <label for="currentPrice">Current Price (per share) *</label>
+                    <input type="number" id="currentPrice" required step="0.01" min="0" placeholder="e.g., 155.00">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Investment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        let currentEditId = null;
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Investment';
+            document.getElementById('investmentForm').reset();
+            document.getElementById('investmentId').value = '';
+            currentEditId = null;
+            document.getElementById('investmentModal').classList.add('active');
+        }
+
+        function openEditModal(investment) {
+            document.getElementById('modalTitle').textContent = 'Edit Investment';
+            document.getElementById('investmentId').value = investment.id;
+            document.getElementById('name').value = investment.name;
+            document.getElementById('symbol').value = investment.symbol;
+            document.getElementById('shares').value = investment.shares;
+            document.getElementById('purchasePrice').value = investment.purchase_price;
+            document.getElementById('currentPrice').value = investment.current_price;
+            currentEditId = investment.id;
+            document.getElementById('investmentModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('investmentModal').classList.remove('active');
+        }
+
+        async function saveInvestment(event) {
+            event.preventDefault();
+
+            const data = {
+                name: document.getElementById('name').value,
+                symbol: document.getElementById('symbol').value,
+                shares: parseInt(document.getElementById('shares').value),
+                purchase_price: parseFloat(document.getElementById('purchasePrice').value),
+                current_price: parseFloat(document.getElementById('currentPrice').value)
+            };
+
+            try {
+                const url = currentEditId ? `/api/investments/${currentEditId}` : '/api/investments';
+                const method = currentEditId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    closeModal();
+                    await loadPortfolio();
+                    await loadChart();
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error saving investment: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteInvestment(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/investments/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    await loadPortfolio();
+                    await loadChart();
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error deleting investment: ' + error.message, 'error');
+            }
+        }
+
         async function loadPortfolio() {
             try {
                 const response = await fetch('/api/portfolio');
@@ -266,7 +620,6 @@
 
                 const investmentsGrid = document.getElementById('investmentsGrid');
                 investmentsGrid.innerHTML = data.investments.map(inv => {
-                    const value = inv.shares * inv.price;
                     const isPositive = inv.change >= 0;
                     return `
                         <div class="investment-card">
@@ -280,19 +633,27 @@
                                     <div class="detail-value">${inv.shares}</div>
                                 </div>
                                 <div class="detail">
-                                    <div class="detail-label">Price</div>
-                                    <div class="detail-value">$${inv.price.toFixed(2)}</div>
+                                    <div class="detail-label">Purchase Price</div>
+                                    <div class="detail-value">$${inv.purchase_price.toFixed(2)}</div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-label">Current Price</div>
+                                    <div class="detail-value">$${inv.current_price.toFixed(2)}</div>
                                 </div>
                                 <div class="detail">
                                     <div class="detail-label">Change</div>
                                     <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
-                                        ${isPositive ? '+' : ''}${inv.change}%
+                                        ${isPositive ? '+' : ''}${inv.change.toFixed(2)}%
                                     </div>
                                 </div>
-                                <div class="detail">
-                                    <div class="detail-label">Value</div>
-                                    <div class="detail-value">$${value.toLocaleString()}</div>
-                                </div>
+                            </div>
+                            <div class="detail" style="margin-top: 15px;">
+                                <div class="detail-label">Total Value</div>
+                                <div class="detail-value" style="font-size: 1.5rem; color: #667eea;">$${inv.value.toLocaleString()}</div>
+                            </div>
+                            <div class="investment-actions">
+                                <button class="btn btn-secondary btn-small" onclick='openEditModal(${JSON.stringify(inv)})'>Edit</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteInvestment(${inv.id}, '${inv.name}')">Delete</button>
                             </div>
                         </div>
                     `;
@@ -311,8 +672,14 @@
                 const response = await fetch('/api/chart-data');
                 const data = await response.json();
 
-                const ctx = document.getElementById('portfolioChart').getContext('2d');
-                new Chart(ctx, {
+                const ctx = document.getElementById('portfolioChart');
+
+                // Destroy existing chart if it exists
+                if (window.portfolioChart) {
+                    window.portfolioChart.destroy();
+                }
+
+                window.portfolioChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: data.map(d => d.date),
@@ -371,6 +738,15 @@
             }
         }
 
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('investmentModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load data on page load
         loadPortfolio();
         loadChart();
     </script>
