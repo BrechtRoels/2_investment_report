@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Portfolio Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>My Holdings - Portfolio Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -24,6 +23,45 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+            background: #f0f4ff;
         }
 
         header {
@@ -148,25 +186,21 @@
         }
 
         .positive {
-            color: #10b981;
+            color: #10b981 !important;
+            font-weight: 600;
         }
 
         .negative {
-            color: #ef4444;
+            color: #ef4444 !important;
+            font-weight: 600;
         }
 
-        .chart-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
+        .detail-value.positive {
+            color: #10b981 !important;
         }
 
-        .chart-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.5rem;
+        .detail-value.negative {
+            color: #ef4444 !important;
         }
 
         .investments-grid {
@@ -341,18 +375,26 @@
             font-weight: 500;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #e5e7eb;
             border-radius: 10px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
         .form-actions {
@@ -427,11 +469,21 @@
 </head>
 <body>
     <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/holdings" class="active">Holdings</a>
+                <a href="/transactions">Transactions</a>
+            </div>
+        </nav>
+
         <header>
             <div></div>
             <div class="header-content">
-                <h1>💎 Investment Portfolio</h1>
-                <p>Track your investments in real-time</p>
+                <h1>My Holdings</h1>
+                <p>Manage your investment portfolio</p>
             </div>
             <button class="btn btn-primary" onclick="openAddModal()">+ Add Investment</button>
         </header>
@@ -444,11 +496,11 @@
             <div class="dashboard">
                 <div class="stat-card">
                     <div class="stat-label">Total Value</div>
-                    <div class="stat-value" id="totalValue">$0.00</div>
+                    <div class="stat-value" id="totalValue">€0.00</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Total Gain/Loss</div>
-                    <div class="stat-value" id="totalGain">$0.00</div>
+                    <div class="stat-value" id="totalGain">€0.00</div>
                     <div class="stat-change" id="gainPercentage">0%</div>
                 </div>
                 <div class="stat-card">
@@ -457,12 +509,30 @@
                 </div>
             </div>
 
-            <div class="chart-container">
-                <h2>Portfolio Performance (30 Days)</h2>
-                <canvas id="portfolioChart"></canvas>
-            </div>
-
             <div class="investments-grid" id="investmentsGrid"></div>
+
+            <!-- Realized Holdings Section -->
+            <div style="margin-top: 50px;">
+                <h2 style="color: white; font-size: 2rem; margin-bottom: 20px; text-align: center;">Realized Holdings (Sold Stocks)</h2>
+
+                <div class="dashboard" id="realizedStats" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Proceeds</div>
+                        <div class="stat-value" id="totalProceeds">€0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Cost Basis</div>
+                        <div class="stat-value" id="totalCostBasis">€0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Realized Gain/Loss</div>
+                        <div class="stat-value" id="totalRealizedGain">€0.00</div>
+                        <div class="stat-change" id="totalRealizedPercent">0%</div>
+                    </div>
+                </div>
+
+                <div id="realizedHoldingsContainer" style="margin-top: 30px;"></div>
+            </div>
         </div>
     </div>
 
@@ -489,11 +559,12 @@
                 </div>
                 <div class="form-group">
                     <label for="purchasePrice">Purchase Price (per share) *</label>
-                    <input type="number" id="purchasePrice" required step="0.01" min="0" placeholder="e.g., 150.00">
+                    <input type="number" id="purchasePrice" required step="0.01" min="0.01" placeholder="e.g., 150.00">
                 </div>
                 <div class="form-group">
-                    <label for="currentPrice">Current Price (per share) *</label>
-                    <input type="number" id="currentPrice" required step="0.01" min="0" placeholder="e.g., 155.00">
+                    <label for="currentPrice">Current Price (per share)</label>
+                    <input type="number" id="currentPrice" step="0.01" min="0.01" placeholder="e.g., 155.00">
+                    <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">Only required when updating an investment</small>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -503,8 +574,47 @@
         </div>
     </div>
 
+    <!-- Sell Investment Modal -->
+    <div id="sellModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sell Investment</h2>
+                <span class="close" onclick="closeSellModal()">&times;</span>
+            </div>
+            <form id="sellForm" onsubmit="sellInvestment(event)">
+                <input type="hidden" id="sellInvestmentId">
+                <div class="form-group">
+                    <label>Investment</label>
+                    <input type="text" id="sellInvestmentName" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Available Shares</label>
+                    <input type="text" id="sellAvailableShares" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="sellShares">Number of Shares to Sell *</label>
+                    <input type="number" id="sellShares" required min="1" step="1" placeholder="e.g., 50">
+                    <small style="color: #666; font-size: 0.85rem; margin-top: 5px; display: block;">You can sell up to <span id="maxShares"></span> shares</small>
+                </div>
+                <div class="form-group">
+                    <label for="sellPrice">Sell Price (per share) *</label>
+                    <input type="number" id="sellPrice" required step="0.01" min="0.01" placeholder="e.g., 175.00">
+                </div>
+                <div class="form-group">
+                    <label for="sellNotes">Notes (optional)</label>
+                    <textarea id="sellNotes" placeholder="Add any notes about this sale..." rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSellModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Sell Shares</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         let currentEditId = null;
+        let currentSellInvestment = null;
 
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
@@ -521,19 +631,26 @@
             document.getElementById('modalTitle').textContent = 'Add Investment';
             document.getElementById('investmentForm').reset();
             document.getElementById('investmentId').value = '';
+            document.getElementById('symbol').disabled = false;
+            document.getElementById('purchasePrice').disabled = false;
+            document.getElementById('currentPrice').disabled = true; // Disable current price for new investments
             currentEditId = null;
             document.getElementById('investmentModal').classList.add('active');
         }
 
         function openEditModal(investment) {
-            document.getElementById('modalTitle').textContent = 'Edit Investment';
+            document.getElementById('modalTitle').textContent = 'Update Investment';
             document.getElementById('investmentId').value = investment.id;
             document.getElementById('name').value = investment.name;
             document.getElementById('symbol').value = investment.symbol;
+            document.getElementById('symbol').disabled = true; // Can't change ticker when editing
             document.getElementById('shares').value = investment.shares;
             document.getElementById('purchasePrice').value = investment.purchase_price;
+            document.getElementById('purchasePrice').disabled = true; // Can't change purchase price when editing
             document.getElementById('currentPrice').value = investment.current_price;
-            currentEditId = investment.id;
+            document.getElementById('currentPrice').disabled = false;
+            document.getElementById('currentPrice').required = true; // Required when editing
+            currentEditId = investment.symbol; // Use symbol instead of id
             document.getElementById('investmentModal').classList.add('active');
         }
 
@@ -541,21 +658,96 @@
             document.getElementById('investmentModal').classList.remove('active');
         }
 
-        async function saveInvestment(event) {
+        function openSellModal(investment) {
+            currentSellInvestment = investment;
+            document.getElementById('sellInvestmentId').value = investment.id;
+            document.getElementById('sellInvestmentName').value = `${investment.name} (${investment.symbol})`;
+            document.getElementById('sellAvailableShares').value = investment.shares.toLocaleString();
+            document.getElementById('maxShares').textContent = investment.shares.toLocaleString();
+            document.getElementById('sellShares').value = '';
+            document.getElementById('sellPrice').value = investment.current_price.toFixed(2);
+            document.getElementById('sellNotes').value = '';
+            document.getElementById('sellModal').classList.add('active');
+        }
+
+        function closeSellModal() {
+            document.getElementById('sellModal').classList.remove('active');
+            currentSellInvestment = null;
+        }
+
+        async function sellInvestment(event) {
             event.preventDefault();
 
+            const sharesToSell = parseInt(document.getElementById('sellShares').value);
+            const availableShares = currentSellInvestment.shares;
+
+            if (sharesToSell > availableShares) {
+                showNotification(`Cannot sell ${sharesToSell} shares. Only ${availableShares} shares available.`, 'error');
+                return;
+            }
+
             const data = {
-                name: document.getElementById('name').value,
-                symbol: document.getElementById('symbol').value,
-                shares: parseInt(document.getElementById('shares').value),
-                purchase_price: parseFloat(document.getElementById('purchasePrice').value),
-                current_price: parseFloat(document.getElementById('currentPrice').value)
+                shares: sharesToSell,
+                price: parseFloat(document.getElementById('sellPrice').value),
+                notes: document.getElementById('sellNotes').value || 'Stock sale'
             };
 
             try {
-                const url = currentEditId ? `/api/investments/${currentEditId}` : '/api/investments';
-                const method = currentEditId ? 'PUT' : 'POST';
+                const response = await fetch(`/api/investments/${currentSellInvestment.id}/sell`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    closeSellModal();
+                    await loadPortfolio();
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error selling investment: ' + error.message, 'error');
+            }
+        }
+
+        async function saveInvestment(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const symbol = document.getElementById('symbol').value;
+            const shares = parseInt(document.getElementById('shares').value);
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+
+            let data, url, method;
+
+            if (currentEditId) {
+                // Editing existing investment - use ticker (symbol) for URL and send current_price
+                url = `/api/investments/${symbol}`;
+                method = 'PUT';
+                data = {
+                    name: name,
+                    shares: shares,
+                    current_price: currentPrice
+                };
+            } else {
+                // Adding new investment - use purchase_price
+                url = '/api/investments';
+                method = 'POST';
+                data = {
+                    name: name,
+                    symbol: symbol,
+                    shares: shares,
+                    purchase_price: purchasePrice
+                };
+            }
+
+            try {
                 const response = await fetch(url, {
                     method: method,
                     headers: {
@@ -570,7 +762,6 @@
                     showNotification(result.message, 'success');
                     closeModal();
                     await loadPortfolio();
-                    await loadChart();
                 } else {
                     showNotification(result.message, 'error');
                 }
@@ -594,7 +785,6 @@
                 if (result.success) {
                     showNotification(result.message, 'success');
                     await loadPortfolio();
-                    await loadChart();
                 } else {
                     showNotification(result.message, 'error');
                 }
@@ -608,8 +798,8 @@
                 const response = await fetch('/api/portfolio');
                 const data = await response.json();
 
-                document.getElementById('totalValue').textContent = `$${data.total_value.toLocaleString()}`;
-                document.getElementById('totalGain').textContent = `$${data.total_gain.toLocaleString()}`;
+                document.getElementById('totalValue').textContent = `€${data.total_value.toLocaleString()}`;
+                document.getElementById('totalGain').textContent = `€${data.total_gain.toLocaleString()}`;
 
                 const gainPercentageEl = document.getElementById('gainPercentage');
                 const isPositive = data.gain_percentage >= 0;
@@ -634,11 +824,11 @@
                                 </div>
                                 <div class="detail">
                                     <div class="detail-label">Purchase Price</div>
-                                    <div class="detail-value">$${inv.purchase_price.toFixed(2)}</div>
+                                    <div class="detail-value">€${inv.purchase_price.toFixed(2)}</div>
                                 </div>
                                 <div class="detail">
                                     <div class="detail-label">Current Price</div>
-                                    <div class="detail-value">$${inv.current_price.toFixed(2)}</div>
+                                    <div class="detail-value">€${inv.current_price.toFixed(2)}</div>
                                 </div>
                                 <div class="detail">
                                     <div class="detail-label">Change</div>
@@ -649,10 +839,11 @@
                             </div>
                             <div class="detail" style="margin-top: 15px;">
                                 <div class="detail-label">Total Value</div>
-                                <div class="detail-value" style="font-size: 1.5rem; color: #667eea;">$${inv.value.toLocaleString()}</div>
+                                <div class="detail-value" style="font-size: 1.5rem; color: #667eea;">€${inv.value.toLocaleString()}</div>
                             </div>
                             <div class="investment-actions">
                                 <button class="btn btn-secondary btn-small" onclick='openEditModal(${JSON.stringify(inv)})'>Edit</button>
+                                <button class="btn btn-success btn-small" onclick='openSellModal(${JSON.stringify(inv)})'>Sell</button>
                                 <button class="btn btn-danger btn-small" onclick="deleteInvestment(${inv.id}, '${inv.name}')">Delete</button>
                             </div>
                         </div>
@@ -667,76 +858,6 @@
             }
         }
 
-        async function loadChart() {
-            try {
-                const response = await fetch('/api/chart-data');
-                const data = await response.json();
-
-                const ctx = document.getElementById('portfolioChart');
-
-                // Destroy existing chart if it exists
-                if (window.portfolioChart) {
-                    window.portfolioChart.destroy();
-                }
-
-                window.portfolioChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.map(d => d.date),
-                        datasets: [{
-                            label: 'Portfolio Value',
-                            data: data.map(d => d.value),
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#667eea',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        return `$${context.parsed.y.toLocaleString()}`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                ticks: {
-                                    callback: function(value) {
-                                        return '$' + value.toLocaleString();
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error loading chart:', error);
-            }
-        }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
@@ -746,9 +867,100 @@
             }
         }
 
+        async function loadRealizedHoldings() {
+            try {
+                const response = await fetch('/api/realized-holdings');
+                const data = await response.json();
+
+                if (data.realized_holdings && data.realized_holdings.length > 0) {
+                    // Show stats
+                    document.getElementById('realizedStats').style.display = 'grid';
+
+                    // Update totals
+                    document.getElementById('totalProceeds').textContent = `€${data.total_proceeds.toLocaleString()}`;
+                    document.getElementById('totalCostBasis').textContent = `€${data.total_cost_basis.toLocaleString()}`;
+                    document.getElementById('totalRealizedGain').textContent = `€${data.total_realized_gain.toLocaleString()}`;
+
+                    const isPositive = data.total_realized_gain >= 0;
+                    const percentEl = document.getElementById('totalRealizedPercent');
+                    percentEl.textContent = `${isPositive ? '+' : ''}${data.total_realized_gain_percent}%`;
+                    percentEl.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+
+                    // Display realized holdings
+                    const container = document.getElementById('realizedHoldingsContainer');
+                    container.innerHTML = `
+                        <div class="chart-container">
+                            <h2>Sold Stock History</h2>
+                            <div class="investments-grid">
+                                ${data.realized_holdings.map(holding => {
+                                    const isGain = holding.realized_gain >= 0;
+                                    return `
+                                        <div class="investment-card" style="border-left-color: ${isGain ? '#10b981' : '#ef4444'};">
+                                            <div class="investment-header">
+                                                <div class="investment-name">${holding.name}</div>
+                                                <div class="investment-symbol">${holding.ticker}</div>
+                                            </div>
+                                            <div class="investment-details">
+                                                <div class="detail">
+                                                    <div class="detail-label">Shares Sold</div>
+                                                    <div class="detail-value">${holding.shares_sold}</div>
+                                                </div>
+                                                <div class="detail">
+                                                    <div class="detail-label">Sale Price</div>
+                                                    <div class="detail-value">€${holding.sale_price.toFixed(2)}</div>
+                                                </div>
+                                                <div class="detail">
+                                                    <div class="detail-label">Sale Date</div>
+                                                    <div class="detail-value">${holding.sale_date}</div>
+                                                </div>
+                                                <div class="detail">
+                                                    <div class="detail-label">Cost Basis</div>
+                                                    <div class="detail-value">€${holding.cost_basis.toFixed(2)}</div>
+                                                </div>
+                                                <div class="detail">
+                                                    <div class="detail-label">Proceeds</div>
+                                                    <div class="detail-value">€${holding.proceeds.toFixed(2)}</div>
+                                                </div>
+                                                <div class="detail">
+                                                    <div class="detail-label">Realized Gain/Loss</div>
+                                                    <div class="detail-value ${isGain ? 'positive' : 'negative'}">
+                                                        ${isGain ? '+' : ''}€${Math.abs(holding.realized_gain).toFixed(2)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="detail" style="margin-top: 15px;">
+                                                <div class="detail-label">Return</div>
+                                                <div class="detail-value ${isGain ? 'positive' : 'negative'}" style="font-size: 1.5rem;">
+                                                    ${isGain ? '+' : ''}${holding.realized_gain_percent.toFixed(2)}%
+                                                </div>
+                                            </div>
+                                            ${holding.complete_exit ? '<div style="margin-top: 10px; padding: 8px; background: #f0f4ff; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: 600; color: #667eea;">Complete Exit</div>' : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('realizedHoldingsContainer').innerHTML = `
+                        <div class="chart-container" style="text-align: center; color: #666;">
+                            <p>No realized holdings yet. Sell some stocks to see them here.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading realized holdings:', error);
+                document.getElementById('realizedHoldingsContainer').innerHTML = `
+                    <div class="chart-container" style="text-align: center; color: #ef4444;">
+                        <p>Error loading realized holdings</p>
+                    </div>
+                `;
+            }
+        }
+
         // Load data on page load
         loadPortfolio();
-        loadChart();
+        loadRealizedHoldings();
     </script>
 </body>
 </html>

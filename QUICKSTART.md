@@ -17,11 +17,23 @@ python3 api/index.py
 http://localhost:5000
 ```
 
-That's it! The database will be created automatically with sample data.
+That's it! The database will be created automatically (empty and ready for your investments).
 
 ## Using the Application
 
-### Add New Investment
+### Dashboard Page (`/`)
+Your portfolio command center showing:
+- 💰 Total Portfolio Value
+- 📈 Total Gain/Loss with percentage
+- 📊 Number of Investments
+- 💵 Total Amount Invested
+- 📈 30-day Performance Chart
+- 🥧 Asset Allocation Chart
+- 🏆 Top 5 Holdings
+
+### Holdings Page (`/holdings`)
+
+**Add New Investment**
 1. Click the "+ Add Investment" button in the top right
 2. Fill in the form:
    - **Investment Name**: e.g., "Apple Stock"
@@ -30,22 +42,37 @@ That's it! The database will be created automatically with sample data.
    - **Purchase Price**: e.g., 150.00 (price per share when you bought)
    - **Current Price**: e.g., 175.00 (current price per share)
 3. Click "Save Investment"
+4. A "BUY" transaction is automatically created
 
-### Edit Investment
+**Edit Investment**
 1. Find the investment card you want to edit
 2. Click the "Edit" button
 3. Modify any fields
 4. Click "Save Investment"
+5. An "UPDATE" transaction is automatically logged
 
-### Delete Investment
+**Delete Investment**
 1. Find the investment card you want to delete
 2. Click the "Delete" button
 3. Confirm the deletion
 
-### View Your Portfolio
-- **Total Value**: Sum of all investments at current prices
-- **Total Gain/Loss**: How much you've gained or lost overall
-- **Chart**: Visual representation of your portfolio performance over 30 days
+### Transactions Page (`/transactions`)
+
+View all your investment activity:
+- **Filter by Type**: Buy, Sell, or Update
+- **Filter by Investment**: Select specific investment
+- **Filter by Date**: Date range picker
+- **Sort**: Click any column header to sort
+- **Clear Filters**: Reset all filters at once
+
+Each transaction shows:
+- Date and time
+- Transaction type (color-coded)
+- Investment name and symbol
+- Number of shares
+- Price per share
+- Total transaction value
+- Notes
 
 ## Viewing the Database
 

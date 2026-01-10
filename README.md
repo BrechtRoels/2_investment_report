@@ -8,14 +8,29 @@ A beautiful, modern web application for tracking your investment portfolio with 
 
 ## Features
 
-- **Beautiful UI**: Modern gradient design with smooth animations and modal forms
+### 📊 Dashboard Page
+- **Portfolio Overview**: Beautiful intro page with key statistics
+- **Performance Charts**: 30-day historical performance and asset allocation
+- **Top Holdings**: Quick view of your best performing investments
+- **Real-time Calculations**: Automatic gain/loss calculations
+
+### 💼 Holdings Page
 - **Full CRUD Operations**: Add, edit, and delete investments through an intuitive interface
-- **SQLite Database**: Local database storage with automatic initialization
-- **Portfolio Dashboard**: View total portfolio value, gains/losses, and performance metrics
-- **Interactive Charts**: 30-day historical performance visualization using Chart.js
-- **Investment Management**: Track shares, purchase price, current price, and gains for each investment
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
-- **Easy Deployment**: Ready to deploy to Vercel with one click
+- **Investment Cards**: Detailed view of each investment with real-time data
+- **Portfolio Summary**: Total value, gains/losses, and performance metrics
+- **Modal Forms**: Beautiful forms for adding and editing investments
+
+### 📝 Transactions Page
+- **Complete Transaction History**: View all buy, sell, and update transactions
+- **Advanced Filtering**: Filter by type, investment, and date range
+- **Sortable Columns**: Click any column header to sort
+- **Modern Table Design**: Clean, responsive table with hover effects
+
+### 🎨 Design & UX
+- **Modern Gradient UI**: Beautiful purple gradient theme
+- **Smooth Animations**: Polished transitions and hover effects
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+- **Navigation**: Easy navigation between Dashboard, Holdings, and Transactions
 
 ## Tech Stack
 
@@ -37,7 +52,7 @@ pip install -r requirements.txt
 python api/index.py
 ```
 
-The database will be automatically created on first run with sample data.
+The database will be automatically created on first run (empty - ready for your data).
 
 3. **Open your browser** and navigate to:
 ```
@@ -128,24 +143,55 @@ That's it! Your application will be live in seconds.
 ```
 2_investment_report/
 ├── api/
-│   └── index.py          # Flask application and API endpoints
+│   └── index.py                # Flask application and API endpoints
 ├── database/
-│   ├── init_db.py        # Database initialization script (optional)
-│   └── investment.db     # SQLite database (auto-created)
+│   ├── init_db.py              # Database initialization script (optional)
+│   └── investment.db           # SQLite database (auto-created)
 ├── templates/
-│   └── index.html        # Main HTML template with embedded CSS/JS
-├── vercel.json           # Vercel configuration
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+│   ├── dashboard.html          # Main dashboard page
+│   ├── holdings.html           # Holdings management page
+│   └── transactions.html       # Transactions history page
+├── vercel.json                 # Vercel configuration
+├── requirements.txt            # Python dependencies
+├── QUICKSTART.md              # Quick start guide
+└── README.md                  # This file
 ```
+
+## Pages
+
+### Dashboard (`/`)
+- Portfolio overview with key statistics
+- Performance charts (line chart + doughnut chart)
+- Top 5 holdings display
+- Quick navigation to other pages
+
+### Holdings (`/holdings`)
+- View all investments in card format
+- Add new investments
+- Edit existing investments
+- Delete investments
+- Real-time portfolio calculations
+
+### Transactions (`/transactions`)
+- Complete transaction history
+- Filter by type (buy/sell/update)
+- Filter by investment
+- Filter by date range
+- Sortable table columns
 
 ## API Endpoints
 
-- `GET /` - Main application page
+### Pages
+- `GET /` - Dashboard page
+- `GET /holdings` - Holdings management page
+- `GET /transactions` - Transactions history page
+
+### API
 - `GET /api/portfolio` - Get portfolio summary and all investments
+- `GET /api/transactions` - Get all transactions with investment details
 - `GET /api/chart-data` - Get 30-day historical portfolio data
-- `POST /api/investments` - Add a new investment
-- `PUT /api/investments/<id>` - Update an existing investment
+- `POST /api/investments` - Add a new investment (auto-creates transaction)
+- `PUT /api/investments/<id>` - Update an existing investment (auto-logs transaction)
 - `DELETE /api/investments/<id>` - Delete an investment
 
 ## License

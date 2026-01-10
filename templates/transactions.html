@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Portfolio Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+            background: #f0f4ff;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-filter {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 24px;
+        }
+
+        .btn-filter:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        /* Transactions Table */
+        .transactions-container {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .transactions-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .transaction-count {
+            font-size: 0.9rem;
+            color: #666;
+            background: #f0f4ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            color: #333;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.3s ease;
+        }
+
+        th:hover {
+            background: #f0f4ff;
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.3;
+        }
+
+        th.sort-asc::after {
+            content: ' ↑';
+            opacity: 1;
+        }
+
+        th.sort-desc::after {
+            content: ' ↓';
+            opacity: 1;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        td {
+            padding: 20px 15px;
+            color: #666;
+        }
+
+        .transaction-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .type-buy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .type-sell {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .type-update {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .investment-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .investment-symbol {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 100px;
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Side Panel Styles */
+        .side-panel {
+            position: fixed;
+            right: -500px;
+            top: 0;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .side-panel.active {
+            right: 0;
+        }
+
+        .side-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .side-panel-overlay.active {
+            display: block;
+        }
+
+        .side-panel-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .side-panel-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .close-panel {
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-panel:hover {
+            opacity: 0.8;
+        }
+
+        .side-panel-content {
+            padding: 30px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input:disabled {
+            background: #f9fafb;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        tbody tr {
+            cursor: pointer;
+        }
+
+        /* Confirmation Modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirmation-content h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .confirmation-content p {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .confirmation-actions button {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .side-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/holdings">Holdings</a>
+                <a href="/transactions" class="active">Transactions</a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <header>
+            <h1>Transaction History</h1>
+            <p>View and filter all your investment transactions</p>
+        </header>
+
+        <div id="loading" class="loading pulse">
+            Loading transactions...
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label for="filterType">Transaction Type</label>
+                    <select id="filterType" onchange="applyFilters()">
+                        <option value="">All Types</option>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                        <option value="update">Update</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterInvestment">Investment</label>
+                    <select id="filterInvestment" onchange="applyFilters()">
+                        <option value="">All Investments</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterDateFrom">Date From</label>
+                    <input type="date" id="filterDateFrom" onchange="applyFilters()">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterDateTo">Date To</label>
+                    <input type="date" id="filterDateTo" onchange="applyFilters()">
+                </div>
+
+                <button class="btn-filter" onclick="clearFilters()">Clear Filters</button>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="transactions-container">
+                <div class="transactions-header">
+                    <h2>All Transactions</h2>
+                    <span class="transaction-count" id="transactionCount">0 transactions</span>
+                </div>
+
+                <div id="transactionsTableContainer">
+                    <!-- Table will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel Overlay -->
+        <div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+
+        <!-- Side Panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="side-panel-header">
+                <h2>Transaction Details</h2>
+                <button class="close-panel" onclick="closeSidePanel()">&times;</button>
+            </div>
+            <div class="side-panel-content">
+                <div class="panel-actions">
+                    <button class="btn-edit" id="editBtn" onclick="enableEdit()">Edit</button>
+                    <button class="btn-save" id="saveBtn" onclick="showConfirmation()" style="display: none;">Save</button>
+                    <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display: none;">Cancel</button>
+                </div>
+
+                <form id="transactionForm">
+                    <input type="hidden" id="transactionId">
+
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTicker">Ticker</label>
+                        <input type="text" id="editTicker" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input type="text" id="editName" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editAction">Action</label>
+                        <select id="editAction" disabled>
+                            <option value="BUY">BUY</option>
+                            <option value="PURCHASE">PURCHASE</option>
+                            <option value="SELL">SELL</option>
+                            <option value="SALE">SALE</option>
+                            <option value="SOLD">SOLD</option>
+                            <option value="update">UPDATE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPriceBeforeCurrency">Price Before Currency</label>
+                        <input type="text" id="editPriceBeforeCurrency" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCurrencyFrom">Currency From</label>
+                        <input type="text" id="editCurrencyFrom" disabled placeholder="e.g., USD">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editExchangeRate">Exchange Rate</label>
+                        <input type="text" id="editExchangeRate" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCurrencyTo">Currency To</label>
+                        <input type="text" id="editCurrencyTo" disabled placeholder="e.g., EUR">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPrice">Price</label>
+                        <input type="text" id="editPrice" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editQuantity">Quantity</label>
+                        <input type="number" id="editQuantity" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTotalAmountBt">Total Amount BT</label>
+                        <input type="text" id="editTotalAmountBt" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editBrokerageFee">Brokerage Fee</label>
+                        <input type="text" id="editBrokerageFee" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStockMarketFee">Stock Market Fee</label>
+                        <input type="text" id="editStockMarketFee" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTotalPurchasePrice">Total Purchase Price</label>
+                        <input type="text" id="editTotalPurchasePrice" disabled>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div class="confirmation-modal" id="confirmationModal">
+            <div class="confirmation-content">
+                <h3>Confirm Changes</h3>
+                <p>Are you sure you want to save these changes to the transaction?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="hideConfirmation()">Cancel</button>
+                    <button class="btn-save" onclick="saveTransaction()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let sortColumn = 'transaction_date';
+        let sortDirection = 'desc';
+        let currentTransaction = null;
+        let isEditMode = false;
+
+        async function loadTransactions() {
+            try {
+                const response = await fetch('/api/transactions');
+                const data = await response.json();
+
+                allTransactions = data.transactions;
+                filteredTransactions = [...allTransactions];
+
+                // Populate investment filter
+                const investments = [...new Set(data.transactions.map(t => t.investment_symbol))];
+                const filterInvestment = document.getElementById('filterInvestment');
+                investments.forEach(symbol => {
+                    const option = document.createElement('option');
+                    option.value = symbol;
+                    option.textContent = symbol;
+                    filterInvestment.appendChild(option);
+                });
+
+                renderTransactions();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                document.getElementById('loading').textContent = 'Error loading transactions';
+            }
+        }
+
+        function applyFilters() {
+            const typeFilter = document.getElementById('filterType').value;
+            const investmentFilter = document.getElementById('filterInvestment').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+
+            filteredTransactions = allTransactions.filter(t => {
+                if (typeFilter && t.transaction_type !== typeFilter) return false;
+                if (investmentFilter && t.investment_symbol !== investmentFilter) return false;
+                if (dateFrom && t.transaction_date < dateFrom) return false;
+                if (dateTo && t.transaction_date > dateTo) return false;
+                return true;
+            });
+
+            renderTransactions();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterInvestment').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            filteredTransactions = [...allTransactions];
+            renderTransactions();
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+
+            filteredTransactions.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+
+                if (sortDirection === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionsTableContainer');
+            const count = document.getElementById('transactionCount');
+
+            count.textContent = `${filteredTransactions.length} transaction${filteredTransactions.length !== 1 ? 's' : ''}`;
+
+            if (filteredTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No transactions found</h3>
+                        <p>Try adjusting your filters or add some investments to see transactions</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const getSortClass = (column) => {
+                if (sortColumn !== column) return 'sortable';
+                return sortDirection === 'asc' ? 'sort-asc' : 'sort-desc';
+            };
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="${getSortClass('transaction_date')}" onclick="sortTable('transaction_date')">Date</th>
+                            <th class="${getSortClass('transaction_type')}" onclick="sortTable('transaction_type')">Type</th>
+                            <th class="${getSortClass('investment_name')}" onclick="sortTable('investment_name')">Investment</th>
+                            <th class="${getSortClass('shares')}" onclick="sortTable('shares')">Shares</th>
+                            <th class="${getSortClass('price')}" onclick="sortTable('price')">Price</th>
+                            <th class="${getSortClass('total_value')}" onclick="sortTable('total_value')">Total Value</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredTransactions.map(t => {
+                            const typeClass = `type-${t.transaction_type}`;
+                            const date = new Date(t.transaction_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                            const totalValue = t.shares * t.price;
+
+                            return `
+                                <tr onclick="openSidePanel(${t.transaction_id})">
+                                    <td class="date">${date}</td>
+                                    <td><span class="transaction-type ${typeClass}">${t.transaction_type.toUpperCase()}</span></td>
+                                    <td>
+                                        <div class="investment-name">${t.investment_name}</div>
+                                        <div class="investment-symbol">${t.investment_symbol}</div>
+                                    </td>
+                                    <td>${t.shares.toLocaleString()}</td>
+                                    <td class="price">€${t.price.toFixed(2)}</td>
+                                    <td class="price">€${totalValue.toLocaleString()}</td>
+                                    <td>${t.notes || '-'}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function openSidePanel(transactionId) {
+            currentTransaction = allTransactions.find(t => t.transaction_id === transactionId);
+            if (!currentTransaction) return;
+
+            // Store original date to prevent auto-changing
+            currentTransaction.original_date = currentTransaction.transaction_date;
+
+            // Populate the form with all fields
+            document.getElementById('transactionId').value = currentTransaction.transaction_id;
+            document.getElementById('editDate').value = currentTransaction.transaction_date;
+            document.getElementById('editTicker').value = currentTransaction.investment_symbol;
+            document.getElementById('editName').value = currentTransaction.investment_name;
+            document.getElementById('editAction').value = currentTransaction.transaction_type.toUpperCase();
+
+            // Price and currency fields
+            document.getElementById('editPriceBeforeCurrency').value = currentTransaction.price_before_currency || '';
+            document.getElementById('editCurrencyFrom').value = currentTransaction.currency_from || '';
+            document.getElementById('editExchangeRate').value = currentTransaction.exchange_rate || '';
+            document.getElementById('editCurrencyTo').value = currentTransaction.currency_to || '';
+            document.getElementById('editPrice').value = `€${currentTransaction.price.toFixed(2)}`;
+
+            document.getElementById('editQuantity').value = currentTransaction.shares;
+
+            // Financial fields
+            document.getElementById('editTotalAmountBt').value = currentTransaction.total_amount_bt || '';
+            document.getElementById('editBrokerageFee').value = currentTransaction.brokerage_fee || '';
+            document.getElementById('editStockMarketFee').value = currentTransaction.stock_market_fee || '';
+            document.getElementById('editTotalPurchasePrice').value = currentTransaction.total_purchase_price || '';
+
+            // Show the side panel
+            document.getElementById('sidePanel').classList.add('active');
+            document.getElementById('sidePanelOverlay').classList.add('active');
+
+            // Reset to view mode
+            isEditMode = false;
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function closeSidePanel() {
+            document.getElementById('sidePanel').classList.remove('active');
+            document.getElementById('sidePanelOverlay').classList.remove('active');
+            cancelEdit();
+            currentTransaction = null;
+        }
+
+        function enableEdit() {
+            isEditMode = true;
+
+            // Enable editable fields (exclude TransactionID, UserID which aren't shown)
+            document.getElementById('editDate').disabled = false;
+            document.getElementById('editTicker').disabled = false;
+            document.getElementById('editName').disabled = false;
+            document.getElementById('editAction').disabled = false;
+            document.getElementById('editQuantity').disabled = false;
+
+            // Enable all currency and price fields
+            document.getElementById('editPriceBeforeCurrency').disabled = false;
+            document.getElementById('editCurrencyFrom').disabled = false;
+            document.getElementById('editExchangeRate').disabled = false;
+            document.getElementById('editCurrencyTo').disabled = false;
+
+            // Price fields become editable but need special handling
+            const priceInput = document.getElementById('editPrice');
+            priceInput.disabled = false;
+            priceInput.value = currentTransaction.price.toFixed(2); // Remove € symbol
+
+            // Enable financial fields
+            document.getElementById('editTotalAmountBt').disabled = false;
+            document.getElementById('editBrokerageFee').disabled = false;
+            document.getElementById('editStockMarketFee').disabled = false;
+            document.getElementById('editTotalPurchasePrice').disabled = false;
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'block';
+            document.getElementById('cancelBtn').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            isEditMode = false;
+
+            // Disable all fields
+            document.getElementById('editDate').disabled = true;
+            document.getElementById('editTicker').disabled = true;
+            document.getElementById('editName').disabled = true;
+            document.getElementById('editAction').disabled = true;
+            document.getElementById('editPriceBeforeCurrency').disabled = true;
+            document.getElementById('editCurrencyFrom').disabled = true;
+            document.getElementById('editExchangeRate').disabled = true;
+            document.getElementById('editCurrencyTo').disabled = true;
+            document.getElementById('editPrice').disabled = true;
+            document.getElementById('editQuantity').disabled = true;
+            document.getElementById('editTotalAmountBt').disabled = true;
+            document.getElementById('editBrokerageFee').disabled = true;
+            document.getElementById('editStockMarketFee').disabled = true;
+            document.getElementById('editTotalPurchasePrice').disabled = true;
+
+            // Reset to original values if currentTransaction exists
+            if (currentTransaction) {
+                document.getElementById('editDate').value = currentTransaction.original_date || currentTransaction.transaction_date;
+                document.getElementById('editTicker').value = currentTransaction.investment_symbol;
+                document.getElementById('editName').value = currentTransaction.investment_name;
+                document.getElementById('editAction').value = currentTransaction.transaction_type.toUpperCase();
+                document.getElementById('editPriceBeforeCurrency').value = currentTransaction.price_before_currency || '';
+                document.getElementById('editCurrencyFrom').value = currentTransaction.currency_from || '';
+                document.getElementById('editExchangeRate').value = currentTransaction.exchange_rate || '';
+                document.getElementById('editCurrencyTo').value = currentTransaction.currency_to || '';
+                document.getElementById('editPrice').value = `€${currentTransaction.price.toFixed(2)}`;
+                document.getElementById('editQuantity').value = currentTransaction.shares;
+                document.getElementById('editTotalAmountBt').value = currentTransaction.total_amount_bt || '';
+                document.getElementById('editBrokerageFee').value = currentTransaction.brokerage_fee || '';
+                document.getElementById('editStockMarketFee').value = currentTransaction.stock_market_fee || '';
+                document.getElementById('editTotalPurchasePrice').value = currentTransaction.total_purchase_price || '';
+            }
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function showConfirmation() {
+            document.getElementById('confirmationModal').classList.add('active');
+        }
+
+        function hideConfirmation() {
+            document.getElementById('confirmationModal').classList.remove('active');
+        }
+
+        async function saveTransaction() {
+            const transactionId = document.getElementById('transactionId').value;
+
+            // Get date value and ensure it's in YYYY-MM-DD format, fallback to original date if empty
+            const dateValue = document.getElementById('editDate').value || currentTransaction.original_date || currentTransaction.transaction_date;
+
+            const updatedData = {
+                transaction_date: dateValue,
+                ticker: document.getElementById('editTicker').value,
+                name: document.getElementById('editName').value,
+                action: document.getElementById('editAction').value,
+                price_before_currency: document.getElementById('editPriceBeforeCurrency').value,
+                currency_from: document.getElementById('editCurrencyFrom').value,
+                exchange_rate: document.getElementById('editExchangeRate').value,
+                currency_to: document.getElementById('editCurrencyTo').value,
+                price: parseFloat(document.getElementById('editPrice').value),
+                quantity: parseInt(document.getElementById('editQuantity').value),
+                total_amount_bt: document.getElementById('editTotalAmountBt').value,
+                brokerage_fee: document.getElementById('editBrokerageFee').value,
+                stock_market_fee: document.getElementById('editStockMarketFee').value,
+                total_purchase_price: document.getElementById('editTotalPurchasePrice').value
+            };
+
+            try {
+                const response = await fetch(`/api/transactions/${transactionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideConfirmation();
+                    closeSidePanel();
+                    await loadTransactions(); // Reload transactions
+                    alert('Transaction updated successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating transaction:', error);
+                alert('Error updating transaction: ' + error.message);
+            }
+        }
+
+        loadTransactions();
+    </script>
+</body>
+</html>

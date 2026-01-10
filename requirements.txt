@@ -1,2 +1,5 @@
 Flask==3.0.0
 Werkzeug==3.0.1
+supabase==2.27.1
+python-dotenv==1.2.1
+yfinance==0.2.48
