@@ -66,9 +66,17 @@
 
         /* Header */
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             color: white;
             margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            text-align: center;
+            flex: 1;
         }
 
         header h1 {
@@ -81,6 +89,36 @@
         header p {
             font-size: 1.2rem;
             opacity: 0.95;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
         }
 
         /* Filter Bar */
@@ -253,6 +291,27 @@
             color: #1e40af;
         }
 
+        .investment-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .transaction-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: contain;
+            background: #f8f9fa;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .investment-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .investment-name {
             font-weight: 600;
             color: #333;
@@ -341,27 +400,66 @@
         }
 
         .side-panel-header {
-            padding: 30px;
+            padding: 30px 80px 30px 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .panel-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: white;
+            padding: 6px;
+            flex-shrink: 0;
+        }
+
+        .panel-header-text {
+            flex: 1;
+            min-width: 0;
         }
 
         .side-panel-header h2 {
             font-size: 1.5rem;
-            margin: 0;
+            margin: 0 0 4px 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .panel-ticker {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
         }
 
         .close-panel {
+            position: absolute;
+            top: 25px;
+            right: 25px;
             font-size: 2rem;
             cursor: pointer;
             color: white;
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             padding: 0;
             line-height: 1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-panel:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
         }
 
         .close-panel:hover {
@@ -529,6 +627,126 @@
             flex: 1;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 30px 30px 20px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #exchangeRateSection {
+            margin-top: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #d1d5db;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
         @media (max-width: 768px) {
             .filter-bar {
                 flex-direction: column;
@@ -571,18 +789,26 @@
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="logo">Portfolio Tracker</div>
             <div class="nav-links">
                 <a href="/">Dashboard</a>
                 <a href="/holdings">Holdings</a>
                 <a href="/transactions" class="active">Transactions</a>
+                <a href="/dividends">Dividends</a>
+                <a href="/money-invested">Money Invested</a>
+                <a href="/capital-gains-tax">Tax Calculator</a>
+                <a href="/logout" style="color: #ef4444;">Logout</a>
             </div>
         </nav>
 
         <!-- Header -->
         <header>
-            <h1>Transaction History</h1>
-            <p>View and filter all your investment transactions</p>
+            <div></div>
+            <div class="header-content">
+                <h1>Transaction History</h1>
+                <p>View and manage all your investment transactions</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddTransactionModal()">+ Add Transaction</button>
         </header>
 
         <div id="loading" class="loading pulse">
@@ -641,7 +867,11 @@
         <!-- Side Panel -->
         <div class="side-panel" id="sidePanel">
             <div class="side-panel-header">
-                <h2>Transaction Details</h2>
+                <img id="panelStockLogo" src="" alt="Stock logo" class="panel-logo" style="display: none;">
+                <div class="panel-header-text">
+                    <h2 id="panelStockName">Transaction Details</h2>
+                    <div class="panel-ticker" id="panelStockTicker"></div>
+                </div>
                 <button class="close-panel" onclick="closeSidePanel()">&times;</button>
             </div>
             <div class="side-panel-content">
@@ -745,6 +975,108 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add Transaction Modal -->
+        <div id="addTransactionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Transaction</h2>
+                    <button class="close-btn" onclick="closeAddTransactionModal()">&times;</button>
+                </div>
+                <form id="newTransactionForm" onsubmit="saveNewTransaction(event)">
+                    <div class="form-group">
+                        <label for="newDate">Date *</label>
+                        <input type="date" id="newDate" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newTicker">Ticker *</label>
+                            <input type="text" id="newTicker" required placeholder="AAPL">
+                        </div>
+                        <div class="form-group">
+                            <label for="newName">Name *</label>
+                            <input type="text" id="newName" required placeholder="Apple Inc.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newAction">Action *</label>
+                        <select id="newAction" required onchange="calculateTotals()">
+                            <option value="BUY">Buy</option>
+                            <option value="SELL">Sell</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCurrencyFrom">Currency *</label>
+                        <select id="newCurrencyFrom" required onchange="toggleExchangeRateFields()">
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="PLN">PLN - Polish Zloty</option>
+                            <option value="CZK">CZK - Czech Koruna</option>
+                            <option value="HUF">HUF - Hungarian Forint</option>
+                        </select>
+                    </div>
+                    <div id="exchangeRateSection" style="display: none;">
+                        <div class="form-group">
+                            <label for="newPriceBeforeCurrency">Price Before Currency Conversion</label>
+                            <input type="text" id="newPriceBeforeCurrency" placeholder="150.00">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newExchangeRate">Exchange Rate</label>
+                                <input type="text" id="newExchangeRate" placeholder="0.95">
+                            </div>
+                            <div class="form-group">
+                                <label for="newCurrencyTo">Currency To</label>
+                                <input type="text" id="newCurrencyTo" value="EUR" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newPrice">Price (€) *</label>
+                            <input type="number" id="newPrice" step="0.01" required placeholder="150.00" oninput="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="newQuantity">Quantity *</label>
+                            <input type="number" id="newQuantity" step="1" required placeholder="10" oninput="calculateTotals()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newTotalAmountBT">Total Amount BT (Auto-calculated)</label>
+                        <input type="text" id="newTotalAmountBT" placeholder="0.00" readonly style="background: #f3f4f6; cursor: not-allowed;">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newBrokerageFee">Brokerage Fee</label>
+                            <input type="text" id="newBrokerageFee" placeholder="0.00" oninput="calculateTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label for="newStockMarketFee">Stock Market Fee</label>
+                            <input type="text" id="newStockMarketFee" placeholder="0.00" oninput="calculateTotals()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newTotalPurchasePrice">Total Purchase Price (€) (Auto-calculated)</label>
+                        <input type="number" id="newTotalPurchasePrice" step="0.01" placeholder="0.00" readonly style="background: #f3f4f6; cursor: not-allowed;">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddTransactionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <script>
@@ -754,6 +1086,12 @@
         let sortDirection = 'desc';
         let currentTransaction = null;
         let isEditMode = false;
+
+        // Get logo URL from LogoKit API
+        function getLogoUrl(ticker) {
+            // Use LogoKit API with ticker symbol
+            return `https://img.logokit.com/ticker/${ticker}?token=pk_fr3b0beff1dbc498d457dd&format=png&size=80`;
+        }
 
         async function loadTransactions() {
             try {
@@ -880,14 +1218,20 @@
                                 day: 'numeric'
                             });
                             const totalValue = t.shares * t.price;
+                            const logoUrl = getLogoUrl(t.investment_symbol);
 
                             return `
                                 <tr onclick="openSidePanel(${t.transaction_id})">
                                     <td class="date">${date}</td>
                                     <td><span class="transaction-type ${typeClass}">${t.transaction_type.toUpperCase()}</span></td>
                                     <td>
-                                        <div class="investment-name">${t.investment_name}</div>
-                                        <div class="investment-symbol">${t.investment_symbol}</div>
+                                        <div class="investment-cell">
+                                            <img src="${logoUrl}" alt="${t.investment_symbol} logo" class="transaction-logo" onerror="this.style.display='none'">
+                                            <div class="investment-info">
+                                                <div class="investment-name">${t.investment_name}</div>
+                                                <div class="investment-symbol">${t.investment_symbol}</div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>${t.shares.toLocaleString()}</td>
                                     <td class="price">€${t.price.toFixed(2)}</td>
@@ -904,6 +1248,16 @@
         function openSidePanel(transactionId) {
             currentTransaction = allTransactions.find(t => t.transaction_id === transactionId);
             if (!currentTransaction) return;
+
+            // Set panel header with logo
+            const logoEl = document.getElementById('panelStockLogo');
+            const logoUrl = getLogoUrl(currentTransaction.investment_symbol);
+            logoEl.src = logoUrl;
+            logoEl.style.display = 'block';
+            logoEl.onerror = function() { this.style.display = 'none'; };
+
+            document.getElementById('panelStockName').textContent = currentTransaction.investment_name;
+            document.getElementById('panelStockTicker').textContent = currentTransaction.investment_symbol;
 
             // Store original date to prevent auto-changing
             currentTransaction.original_date = currentTransaction.transaction_date;
@@ -1069,7 +1423,7 @@
                 if (result.success) {
                     hideConfirmation();
                     closeSidePanel();
-                    await loadTransactions(); // Reload transactions
+                    await loadTransactions();
                     alert('Transaction updated successfully!');
                 } else {
                     alert('Error: ' + result.message);
@@ -1080,7 +1434,103 @@
             }
         }
 
+        function toggleExchangeRateFields() {
+            const currency = document.getElementById('newCurrencyFrom').value;
+            const exchangeSection = document.getElementById('exchangeRateSection');
+
+            if (currency === 'EUR') {
+                exchangeSection.style.display = 'none';
+            } else {
+                exchangeSection.style.display = 'block';
+            }
+        }
+
+        function calculateTotals() {
+            const price = parseFloat(document.getElementById('newPrice').value) || 0;
+            const quantity = parseInt(document.getElementById('newQuantity').value) || 0;
+            const brokerageFee = parseFloat(document.getElementById('newBrokerageFee').value) || 0;
+            const stockMarketFee = parseFloat(document.getElementById('newStockMarketFee').value) || 0;
+            const action = document.getElementById('newAction').value;
+
+            // Calculate Total Amount BT (Price × Quantity)
+            const totalAmountBT = price * quantity;
+            document.getElementById('newTotalAmountBT').value = totalAmountBT.toFixed(2);
+
+            // Calculate Total Purchase Price
+            // For BUY: add fees, For SELL: subtract fees
+            let totalPurchasePrice;
+            if (action === 'BUY') {
+                totalPurchasePrice = totalAmountBT + brokerageFee + stockMarketFee;
+            } else { // SELL
+                totalPurchasePrice = totalAmountBT - brokerageFee - stockMarketFee;
+            }
+            document.getElementById('newTotalPurchasePrice').value = totalPurchasePrice.toFixed(2);
+        }
+
+        function openAddTransactionModal() {
+            document.getElementById('newTransactionForm').reset();
+            document.getElementById('newDate').valueAsDate = new Date();
+            document.getElementById('newCurrencyFrom').value = 'EUR';
+            document.getElementById('newCurrencyTo').value = 'EUR';
+            document.getElementById('newBrokerageFee').value = '0.00';
+            document.getElementById('newStockMarketFee').value = '0.00';
+            toggleExchangeRateFields();
+            calculateTotals();
+            document.getElementById('addTransactionModal').classList.add('active');
+        }
+
+        function closeAddTransactionModal() {
+            document.getElementById('addTransactionModal').classList.remove('active');
+        }
+
+        async function saveNewTransaction(event) {
+            event.preventDefault();
+
+            const currency = document.getElementById('newCurrencyFrom').value;
+            const isEUR = currency === 'EUR';
+
+            const transactionData = {
+                date: document.getElementById('newDate').value,
+                ticker: document.getElementById('newTicker').value.toUpperCase(),
+                name: document.getElementById('newName').value,
+                action: document.getElementById('newAction').value,
+                price_before_currency: isEUR ? '' : (document.getElementById('newPriceBeforeCurrency').value || ''),
+                currency_from: currency,
+                exchange_rate: isEUR ? '1' : (document.getElementById('newExchangeRate').value || ''),
+                currency_to: 'EUR',
+                price: parseFloat(document.getElementById('newPrice').value),
+                quantity: parseInt(document.getElementById('newQuantity').value),
+                total_amount_bt: document.getElementById('newTotalAmountBT').value || '',
+                brokerage_fee: document.getElementById('newBrokerageFee').value || '',
+                stock_market_fee: document.getElementById('newStockMarketFee').value || '',
+                total_purchase_price: parseFloat(document.getElementById('newTotalPurchasePrice').value)
+            };
+
+            try {
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transactionData)
+                });
+
+                const result = await response.json();
+
+                if (result.success || response.ok) {
+                    closeAddTransactionModal();
+                    await loadTransactions();
+                    alert('Transaction added successfully!');
+                } else {
+                    alert('Error adding transaction: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                alert('Error adding transaction: ' + error.message);
+            }
+        }
+
         loadTransactions();
     </script>
+
+    {% include 'chatbot.html' %}
 </body>
 </html>

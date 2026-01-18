@@ -66,9 +66,17 @@
 
         /* Header */
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             color: white;
             margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            text-align: center;
+            flex: 1;
         }
 
         header h1 {
@@ -81,6 +89,27 @@
         header p {
             font-size: 1.2rem;
             opacity: 0.95;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         /* Stats Grid */
@@ -164,6 +193,7 @@
         tbody tr {
             border-bottom: 1px solid #e5e7eb;
             transition: background 0.3s ease;
+            cursor: pointer;
         }
 
         tbody tr:hover {
@@ -239,6 +269,376 @@
             font-weight: 600;
         }
 
+        /* Side Panel Styles */
+        .side-panel {
+            position: fixed;
+            right: -500px;
+            top: 0;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .side-panel.active {
+            right: 0;
+        }
+
+        .side-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .side-panel-overlay.active {
+            display: block;
+        }
+
+        .side-panel-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .side-panel-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .close-panel {
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-panel:hover {
+            opacity: 0.8;
+        }
+
+        .side-panel-content {
+            padding: 30px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f9fafb;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f4ff;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f9fafb;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Confirmation Modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirmation-content h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .confirmation-content p {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .confirmation-actions button {
+            flex: 1;
+        }
+
+        #dividendExchangeRateSection {
+            margin-top: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #d1d5db;
+        }
+
         @media (max-width: 768px) {
             table {
                 font-size: 0.85rem;
@@ -252,6 +652,11 @@
                 font-size: 2rem;
             }
 
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
             nav {
                 flex-direction: column;
                 gap: 15px;
@@ -261,6 +666,15 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                width: 100%;
+                right: -100%;
+            }
         }
     </style>
 </head>
@@ -268,19 +682,26 @@
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="logo">Portfolio Tracker</div>
             <div class="nav-links">
                 <a href="/">Dashboard</a>
                 <a href="/holdings">Holdings</a>
                 <a href="/transactions">Transactions</a>
                 <a href="/dividends" class="active">Dividends</a>
+                <a href="/money-invested">Money Invested</a>
+                <a href="/capital-gains-tax">Tax Calculator</a>
+                <a href="/logout" style="color: #ef4444;">Logout</a>
             </div>
         </nav>
 
         <!-- Header -->
         <header>
-            <h1>Dividend History</h1>
-            <p>Track all your dividend income</p>
+            <div></div>
+            <div class="header-content">
+                <h1>Dividend History</h1>
+                <p>Track all your dividend income</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddDividendModal()">+ Add Dividend</button>
         </header>
 
         <div id="loading" class="loading pulse">
@@ -320,17 +741,269 @@
                 </div>
             </div>
         </div>
+
+        <!-- Side Panel Overlay -->
+        <div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+
+        <!-- Side Panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="side-panel-header">
+                <h2>Dividend Details</h2>
+                <button class="close-panel" onclick="closeSidePanel()">&times;</button>
+            </div>
+            <div class="side-panel-content">
+                <div class="panel-actions">
+                    <button class="btn-edit" id="editBtn" onclick="enableEdit()">Edit</button>
+                    <button class="btn-save" id="saveBtn" onclick="showSaveConfirmation()" style="display: none;">Save</button>
+                    <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display: none;">Cancel</button>
+                    <button class="btn-delete" id="deleteBtn" onclick="showDeleteConfirmation()">Delete</button>
+                </div>
+
+                <form id="dividendForm">
+                    <input type="hidden" id="dividendId">
+
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTicker">Ticker</label>
+                        <input type="text" id="editTicker" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editName">Company Name</label>
+                        <input type="text" id="editName" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editIsEtf">Investment Type</label>
+                        <select id="editIsEtf" disabled>
+                            <option value="0">Stock</option>
+                            <option value="1">ETF</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editGrossAmount">Gross Amount (€)</label>
+                        <input type="number" id="editGrossAmount" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCurrencyBefore">Currency Before</label>
+                        <input type="text" id="editCurrencyBefore" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editExchangeRate">Exchange Rate</label>
+                        <input type="number" id="editExchangeRate" step="0.0001" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCurrencyAfter">Currency After</label>
+                        <input type="text" id="editCurrencyAfter" disabled>
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0; color: #333; font-size: 1.1rem;">Taxes & Fees</h3>
+
+                    <div class="form-group">
+                        <label for="editForeignTax">Foreign Tax (€)</label>
+                        <input type="number" id="editForeignTax" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCollectionFee">Collection Fee (€)</label>
+                        <input type="number" id="editCollectionFee" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editWithholdingTax">Withholding Tax (€)</label>
+                        <input type="number" id="editWithholdingTax" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editVat">VAT (€)</label>
+                        <input type="number" id="editVat" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editTotalDividend">Net Dividend (€)</label>
+                        <input type="number" id="editTotalDividend" step="0.01" disabled>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal for Save -->
+        <div class="confirmation-modal" id="saveConfirmationModal">
+            <div class="confirmation-content">
+                <h3>Confirm Changes</h3>
+                <p>Are you sure you want to save these changes to the dividend?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="hideSaveConfirmation()">Cancel</button>
+                    <button class="btn-save" onclick="saveDividend()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal for Delete -->
+        <div class="confirmation-modal" id="deleteConfirmationModal">
+            <div class="confirmation-content">
+                <h3>Confirm Deletion</h3>
+                <p>Are you sure you want to delete this dividend? This action cannot be undone.</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="hideDeleteConfirmation()">Cancel</button>
+                    <button class="btn-delete" onclick="deleteDividend()">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Dividend Modal -->
+        <div id="dividendModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Dividend</h2>
+                    <button class="close-btn" onclick="closeAddDividendModal()">&times;</button>
+                </div>
+
+                <form id="newDividendForm" onsubmit="saveNewDividend(event)">
+                    <div class="form-group">
+                        <label for="date">Date *</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ticker">Ticker *</label>
+                            <select id="ticker" required onchange="updateCompanyName()">
+                                <option value="">Select a stock...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Company Name</label>
+                            <input type="text" id="name" readonly placeholder="Auto-filled" style="background-color: #f5f5f5; cursor: not-allowed;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isEtf">Investment Type</label>
+                        <select id="isEtf">
+                            <option value="0">Stock</option>
+                            <option value="1">ETF</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dividendCurrency">Currency *</label>
+                            <select id="dividendCurrency" required onchange="toggleDividendExchangeRateFields()">
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="CHF">CHF - Swiss Franc</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                                <option value="SEK">SEK - Swedish Krona</option>
+                                <option value="NOK">NOK - Norwegian Krone</option>
+                                <option value="DKK">DKK - Danish Krone</option>
+                                <option value="PLN">PLN - Polish Zloty</option>
+                                <option value="CZK">CZK - Czech Koruna</option>
+                                <option value="HUF">HUF - Hungarian Forint</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="exchangeRateGroup" style="display: none;">
+                            <label for="exchangeRate"><span id="exchangeRateLabel">Exchange Rate (1 EUR = ? USD)</span> *</label>
+                            <input type="number" id="exchangeRate" step="0.0001" placeholder="1.08" oninput="convertAllToEUR()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grossAmountForeign"><span id="grossAmountLabel">Gross Amount</span> *</label>
+                        <input type="number" id="grossAmountForeign" step="0.01" required placeholder="100.00" oninput="convertAllToEUR()">
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0; color: #333; font-size: 1.1rem;">Taxes & Fees <span id="taxFeeCurrencyLabel"></span></h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="foreignTaxForeign"><span id="foreignTaxLabel">Foreign Tax</span></label>
+                            <input type="number" id="foreignTaxForeign" step="0.01" value="0" placeholder="0.00" oninput="convertAllToEUR()">
+                        </div>
+                        <div class="form-group">
+                            <label for="collectionFeeForeign"><span id="collectionFeeLabel">Collection Fee</span></label>
+                            <input type="number" id="collectionFeeForeign" step="0.01" value="0" placeholder="0.00" oninput="convertAllToEUR()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="withholdingTaxForeign"><span id="withholdingTaxLabel">Withholding Tax</span></label>
+                            <input type="number" id="withholdingTaxForeign" step="0.01" value="0" placeholder="0.00" oninput="convertAllToEUR()">
+                        </div>
+                        <div class="form-group">
+                            <label for="vatForeign"><span id="vatLabel">VAT</span></label>
+                            <input type="number" id="vatForeign" step="0.01" value="0" placeholder="0.00" oninput="convertAllToEUR()">
+                        </div>
+                    </div>
+
+                    <div id="eurConversionSection" style="display: none;">
+                        <h3 style="margin: 25px 0 15px 0; color: #667eea; font-size: 1.1rem;">💶 Converted to EUR (stored in database)</h3>
+
+                        <div class="form-group">
+                            <label for="grossAmount">Gross Amount (€)</label>
+                            <input type="number" id="grossAmount" step="0.01" readonly placeholder="0.00" style="background-color: #f5f5f5; cursor: not-allowed; font-weight: 600;">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="foreignTax">Foreign Tax (€)</label>
+                                <input type="number" id="foreignTax" step="0.01" readonly placeholder="0.00" style="background-color: #f5f5f5; cursor: not-allowed;">
+                            </div>
+                            <div class="form-group">
+                                <label for="collectionFee">Collection Fee (€)</label>
+                                <input type="number" id="collectionFee" step="0.01" readonly placeholder="0.00" style="background-color: #f5f5f5; cursor: not-allowed;">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="withholdingTax">Withholding Tax (€)</label>
+                                <input type="number" id="withholdingTax" step="0.01" readonly placeholder="0.00" style="background-color: #f5f5f5; cursor: not-allowed;">
+                            </div>
+                            <div class="form-group">
+                                <label for="vat">VAT (€)</label>
+                                <input type="number" id="vat" step="0.01" readonly placeholder="0.00" style="background-color: #f5f5f5; cursor: not-allowed;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalDividend">Net Dividend (€) - Auto-calculated</label>
+                        <input type="number" id="totalDividend" step="0.01" readonly placeholder="0.00" style="background-color: #e8f5e9; cursor: not-allowed; font-weight: 700; font-size: 1.1rem; color: #2e7d32;">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddDividendModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Dividend</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
         let allDividends = [];
+        let currentDividend = null;
+        let isEditMode = false;
 
         async function loadDividends() {
             try {
                 const response = await fetch('/api/dividends');
                 const data = await response.json();
-
-                allDividends = data.dividends;
+                allDividends = data.dividends || [];
 
                 // Calculate stats
                 const totalDividends = allDividends.reduce((sum, div) => sum + div.total_dividend, 0);
@@ -339,20 +1012,18 @@
                     .filter(div => new Date(div.date).getFullYear() === currentYear)
                     .reduce((sum, div) => sum + div.total_dividend, 0);
 
-                const oneYearAgo = new Date();
-                oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-                const last12Months = allDividends
-                    .filter(div => new Date(div.date) >= oneYearAgo)
+                const last12Months = new Date();
+                last12Months.setMonth(last12Months.getMonth() - 12);
+                const last12MonthsDividends = allDividends
+                    .filter(div => new Date(div.date) >= last12Months)
                     .reduce((sum, div) => sum + div.total_dividend, 0);
 
-                // Update stats
-                document.getElementById('totalDividends').textContent = `€${totalDividends.toFixed(2)}`;
-                document.getElementById('yearDividends').textContent = `€${yearDividends.toFixed(2)}`;
-                document.getElementById('last12Months').textContent = `€${last12Months.toFixed(2)}`;
+                document.getElementById('totalDividends').textContent = `€${totalDividends.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('yearDividends').textContent = `€${yearDividends.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('last12Months').textContent = `€${last12MonthsDividends.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
                 document.getElementById('dividendCount').textContent = allDividends.length;
 
-                renderDividends();
-
+                renderTable();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
             } catch (error) {
@@ -361,30 +1032,23 @@
             }
         }
 
-        function renderDividends() {
-            const container = document.getElementById('dividendsTableContainer');
-            const count = document.getElementById('tableCount');
-
-            count.textContent = `${allDividends.length} dividend${allDividends.length !== 1 ? 's' : ''}`;
-
+        function renderTable() {
             if (allDividends.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💰</div>
-                        <h3>No dividends found</h3>
-                        <p>Your dividend history will appear here</p>
-                    </div>
-                `;
+                document.getElementById('dividendsTableContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No dividends found. Add your first dividend!</p>';
+                document.getElementById('tableCount').textContent = '0 dividends';
                 return;
             }
 
-            container.innerHTML = `
+            document.getElementById('tableCount').textContent = `${allDividends.length} dividend${allDividends.length !== 1 ? 's' : ''}`;
+
+            document.getElementById('dividendsTableContainer').innerHTML = `
                 <table>
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Company</th>
                             <th>Ticker</th>
+                            <th>Company</th>
+                            <th>Type</th>
                             <th>Gross Amount</th>
                             <th>Taxes & Fees</th>
                             <th>Net Dividend</th>
@@ -392,25 +1056,16 @@
                     </thead>
                     <tbody>
                         ${allDividends.map(div => {
-                            const date = new Date(div.date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                            });
-
                             const totalTaxes = div.foreign_tax + div.collection_fee + div.withholding_tax + div.vat;
-
                             return `
-                                <tr>
-                                    <td class="date">${date}</td>
-                                    <td>
-                                        <div class="company-name">${div.name}</div>
-                                        ${div.is_etf ? '<span class="ticker">ETF</span>' : ''}
-                                    </td>
-                                    <td class="ticker">${div.ticker}</td>
-                                    <td class="price">€${div.gross_amount.toFixed(2)}</td>
-                                    <td class="price negative">-€${totalTaxes.toFixed(2)}</td>
-                                    <td class="price positive">€${div.total_dividend.toFixed(2)}</td>
+                                <tr onclick="openSidePanel(${div.id})">
+                                    <td>${new Date(div.date).toLocaleDateString()}</td>
+                                    <td><strong>${div.ticker}</strong></td>
+                                    <td>${div.name}</td>
+                                    <td>${div.is_etf ? 'ETF' : 'Stock'}</td>
+                                    <td>€${div.gross_amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                                    <td>€${totalTaxes.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                                    <td><strong>€${div.total_dividend.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong></td>
                                 </tr>
                             `;
                         }).join('')}
@@ -419,7 +1074,371 @@
             `;
         }
 
+        function openSidePanel(dividendId) {
+            currentDividend = allDividends.find(d => d.id === dividendId);
+            if (!currentDividend) return;
+
+            // Populate the form
+            document.getElementById('dividendId').value = currentDividend.id;
+            document.getElementById('editDate').value = currentDividend.date;
+            document.getElementById('editTicker').value = currentDividend.ticker;
+            document.getElementById('editName').value = currentDividend.name;
+            document.getElementById('editIsEtf').value = currentDividend.is_etf ? '1' : '0';
+            document.getElementById('editGrossAmount').value = currentDividend.gross_amount;
+            document.getElementById('editCurrencyBefore').value = currentDividend.currency_before || '';
+            document.getElementById('editExchangeRate').value = currentDividend.exchange_rate || 0;
+            document.getElementById('editCurrencyAfter').value = currentDividend.currency_after || 'EUR';
+            document.getElementById('editForeignTax').value = currentDividend.foreign_tax;
+            document.getElementById('editCollectionFee').value = currentDividend.collection_fee;
+            document.getElementById('editWithholdingTax').value = currentDividend.withholding_tax;
+            document.getElementById('editVat').value = currentDividend.vat;
+            document.getElementById('editTotalDividend').value = currentDividend.total_dividend;
+
+            // Show the side panel
+            document.getElementById('sidePanel').classList.add('active');
+            document.getElementById('sidePanelOverlay').classList.add('active');
+
+            // Reset to view mode
+            isEditMode = false;
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function closeSidePanel() {
+            document.getElementById('sidePanel').classList.remove('active');
+            document.getElementById('sidePanelOverlay').classList.remove('active');
+            cancelEdit();
+            currentDividend = null;
+        }
+
+        function enableEdit() {
+            isEditMode = true;
+
+            // Enable all fields
+            document.getElementById('editDate').disabled = false;
+            document.getElementById('editTicker').disabled = false;
+            document.getElementById('editName').disabled = false;
+            document.getElementById('editIsEtf').disabled = false;
+            document.getElementById('editGrossAmount').disabled = false;
+            document.getElementById('editCurrencyBefore').disabled = false;
+            document.getElementById('editExchangeRate').disabled = false;
+            document.getElementById('editCurrencyAfter').disabled = false;
+            document.getElementById('editForeignTax').disabled = false;
+            document.getElementById('editCollectionFee').disabled = false;
+            document.getElementById('editWithholdingTax').disabled = false;
+            document.getElementById('editVat').disabled = false;
+            document.getElementById('editTotalDividend').disabled = false;
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'block';
+            document.getElementById('cancelBtn').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            isEditMode = false;
+
+            // Disable all fields
+            document.getElementById('editDate').disabled = true;
+            document.getElementById('editTicker').disabled = true;
+            document.getElementById('editName').disabled = true;
+            document.getElementById('editIsEtf').disabled = true;
+            document.getElementById('editGrossAmount').disabled = true;
+            document.getElementById('editCurrencyBefore').disabled = true;
+            document.getElementById('editExchangeRate').disabled = true;
+            document.getElementById('editCurrencyAfter').disabled = true;
+            document.getElementById('editForeignTax').disabled = true;
+            document.getElementById('editCollectionFee').disabled = true;
+            document.getElementById('editWithholdingTax').disabled = true;
+            document.getElementById('editVat').disabled = true;
+            document.getElementById('editTotalDividend').disabled = true;
+
+            // Reset to original values if currentDividend exists
+            if (currentDividend) {
+                document.getElementById('editDate').value = currentDividend.date;
+                document.getElementById('editTicker').value = currentDividend.ticker;
+                document.getElementById('editName').value = currentDividend.name;
+                document.getElementById('editIsEtf').value = currentDividend.is_etf ? '1' : '0';
+                document.getElementById('editGrossAmount').value = currentDividend.gross_amount;
+                document.getElementById('editCurrencyBefore').value = currentDividend.currency_before || '';
+                document.getElementById('editExchangeRate').value = currentDividend.exchange_rate || 0;
+                document.getElementById('editCurrencyAfter').value = currentDividend.currency_after || 'EUR';
+                document.getElementById('editForeignTax').value = currentDividend.foreign_tax;
+                document.getElementById('editCollectionFee').value = currentDividend.collection_fee;
+                document.getElementById('editWithholdingTax').value = currentDividend.withholding_tax;
+                document.getElementById('editVat').value = currentDividend.vat;
+                document.getElementById('editTotalDividend').value = currentDividend.total_dividend;
+            }
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function showSaveConfirmation() {
+            document.getElementById('saveConfirmationModal').classList.add('active');
+        }
+
+        function hideSaveConfirmation() {
+            document.getElementById('saveConfirmationModal').classList.remove('active');
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteConfirmationModal').classList.add('active');
+        }
+
+        function hideDeleteConfirmation() {
+            document.getElementById('deleteConfirmationModal').classList.remove('active');
+        }
+
+        async function saveDividend() {
+            const dividendId = document.getElementById('dividendId').value;
+
+            const updatedData = {
+                date: document.getElementById('editDate').value,
+                ticker: document.getElementById('editTicker').value.toUpperCase(),
+                name: document.getElementById('editName').value,
+                is_etf: parseInt(document.getElementById('editIsEtf').value),
+                gross_amount: parseFloat(document.getElementById('editGrossAmount').value),
+                currency_before: document.getElementById('editCurrencyBefore').value || '',
+                exchange_rate: parseFloat(document.getElementById('editExchangeRate').value) || 0,
+                currency_after: document.getElementById('editCurrencyAfter').value || 'EUR',
+                foreign_tax: parseFloat(document.getElementById('editForeignTax').value) || 0,
+                collection_fee: parseFloat(document.getElementById('editCollectionFee').value) || 0,
+                withholding_tax: parseFloat(document.getElementById('editWithholdingTax').value) || 0,
+                vat: parseFloat(document.getElementById('editVat').value) || 0,
+                total_dividend: parseFloat(document.getElementById('editTotalDividend').value)
+            };
+
+            try {
+                const response = await fetch(`/api/dividends/${dividendId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideSaveConfirmation();
+                    closeSidePanel();
+                    await loadDividends();
+                    alert('Dividend updated successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating dividend:', error);
+                alert('Error updating dividend: ' + error.message);
+            }
+        }
+
+        async function deleteDividend() {
+            const dividendId = document.getElementById('dividendId').value;
+
+            try {
+                const response = await fetch(`/api/dividends/${dividendId}`, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    hideDeleteConfirmation();
+                    closeSidePanel();
+                    await loadDividends();
+                    alert('Dividend deleted successfully!');
+                } else {
+                    alert('Error deleting dividend: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting dividend:', error);
+                alert('Error deleting dividend: ' + error.message);
+            }
+        }
+
+        let portfolioStocks = {};
+
+        async function loadPortfolioStocks() {
+            try {
+                const response = await fetch('/api/portfolio-stocks');
+                const data = await response.json();
+
+                portfolioStocks = {};
+                const tickerSelect = document.getElementById('ticker');
+                tickerSelect.innerHTML = '<option value="">Select a stock...</option>';
+
+                data.stocks.forEach(stock => {
+                    portfolioStocks[stock.ticker] = stock.name;
+                    const option = document.createElement('option');
+                    option.value = stock.ticker;
+                    option.textContent = `${stock.ticker} - ${stock.name}`;
+                    tickerSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading portfolio stocks:', error);
+            }
+        }
+
+        function updateCompanyName() {
+            const ticker = document.getElementById('ticker').value;
+            const nameInput = document.getElementById('name');
+
+            if (ticker && portfolioStocks[ticker]) {
+                nameInput.value = portfolioStocks[ticker];
+            } else {
+                nameInput.value = '';
+            }
+        }
+
+        function convertAllToEUR() {
+            const currency = document.getElementById('dividendCurrency').value;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+
+            // Get foreign currency amounts
+            const grossForeign = parseFloat(document.getElementById('grossAmountForeign').value) || 0;
+            const foreignTaxForeign = parseFloat(document.getElementById('foreignTaxForeign').value) || 0;
+            const collectionFeeForeign = parseFloat(document.getElementById('collectionFeeForeign').value) || 0;
+            const withholdingTaxForeign = parseFloat(document.getElementById('withholdingTaxForeign').value) || 0;
+            const vatForeign = parseFloat(document.getElementById('vatForeign').value) || 0;
+
+            let grossEUR, foreignTaxEUR, collectionFeeEUR, withholdingTaxEUR, vatEUR;
+
+            if (currency === 'EUR') {
+                // No conversion needed
+                grossEUR = grossForeign;
+                foreignTaxEUR = foreignTaxForeign;
+                collectionFeeEUR = collectionFeeForeign;
+                withholdingTaxEUR = withholdingTaxForeign;
+                vatEUR = vatForeign;
+            } else {
+                // Convert from foreign currency to EUR
+                // Exchange rate is EUR to Foreign (e.g., 1 EUR = 1.08 USD)
+                // So to get EUR: divide foreign amount by exchange rate
+                grossEUR = grossForeign / exchangeRate;
+                foreignTaxEUR = foreignTaxForeign / exchangeRate;
+                collectionFeeEUR = collectionFeeForeign / exchangeRate;
+                withholdingTaxEUR = withholdingTaxForeign / exchangeRate;
+                vatEUR = vatForeign / exchangeRate;
+            }
+
+            // Update EUR fields
+            document.getElementById('grossAmount').value = grossEUR.toFixed(2);
+            document.getElementById('foreignTax').value = foreignTaxEUR.toFixed(2);
+            document.getElementById('collectionFee').value = collectionFeeEUR.toFixed(2);
+            document.getElementById('withholdingTax').value = withholdingTaxEUR.toFixed(2);
+            document.getElementById('vat').value = vatEUR.toFixed(2);
+
+            // Calculate net dividend
+            const netDividendEUR = grossEUR - foreignTaxEUR - collectionFeeEUR - withholdingTaxEUR - vatEUR;
+            document.getElementById('totalDividend').value = netDividendEUR.toFixed(2);
+        }
+
+        async function openAddDividendModal() {
+            await loadPortfolioStocks();
+            document.getElementById('newDividendForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('dividendCurrency').value = 'EUR';
+
+            // Reset all foreign currency fields
+            document.getElementById('grossAmountForeign').value = '';
+            document.getElementById('foreignTaxForeign').value = '0';
+            document.getElementById('collectionFeeForeign').value = '0';
+            document.getElementById('withholdingTaxForeign').value = '0';
+            document.getElementById('vatForeign').value = '0';
+
+            // Reset EUR fields
+            document.getElementById('grossAmount').value = '0.00';
+            document.getElementById('foreignTax').value = '0.00';
+            document.getElementById('collectionFee').value = '0.00';
+            document.getElementById('withholdingTax').value = '0.00';
+            document.getElementById('vat').value = '0.00';
+            document.getElementById('totalDividend').value = '0.00';
+
+            toggleDividendExchangeRateFields();
+            document.getElementById('dividendModal').classList.add('active');
+        }
+
+        function toggleDividendExchangeRateFields() {
+            const currency = document.getElementById('dividendCurrency').value;
+            const exchangeRateGroup = document.getElementById('exchangeRateGroup');
+            const eurConversionSection = document.getElementById('eurConversionSection');
+
+            // Update labels based on currency
+            const currencySymbol = currency === 'EUR' ? '(€)' : `(${currency})`;
+            document.getElementById('grossAmountLabel').textContent = `Gross Amount ${currencySymbol}`;
+            document.getElementById('taxFeeCurrencyLabel').textContent = currencySymbol;
+            document.getElementById('foreignTaxLabel').textContent = `Foreign Tax ${currencySymbol}`;
+            document.getElementById('collectionFeeLabel').textContent = `Collection Fee ${currencySymbol}`;
+            document.getElementById('withholdingTaxLabel').textContent = `Withholding Tax ${currencySymbol}`;
+            document.getElementById('vatLabel').textContent = `VAT ${currencySymbol}`;
+
+            if (currency === 'EUR') {
+                exchangeRateGroup.style.display = 'none';
+                eurConversionSection.style.display = 'none';
+                document.getElementById('exchangeRate').required = false;
+            } else {
+                // Update exchange rate label with current currency
+                document.getElementById('exchangeRateLabel').textContent = `Exchange Rate (1 EUR = ? ${currency})`;
+                exchangeRateGroup.style.display = 'block';
+                eurConversionSection.style.display = 'block';
+                document.getElementById('exchangeRate').required = true;
+            }
+
+            // Trigger conversion
+            convertAllToEUR();
+        }
+
+        function closeAddDividendModal() {
+            document.getElementById('dividendModal').classList.remove('active');
+        }
+
+        async function saveNewDividend(event) {
+            event.preventDefault();
+
+            const currency = document.getElementById('dividendCurrency').value;
+            const isEUR = currency === 'EUR';
+
+            const dividendData = {
+                date: document.getElementById('date').value,
+                ticker: document.getElementById('ticker').value.toUpperCase(),
+                name: document.getElementById('name').value,
+                is_etf: parseInt(document.getElementById('isEtf').value),
+                gross_amount: parseFloat(document.getElementById('grossAmount').value),
+                currency_before: isEUR ? '' : currency,
+                exchange_rate: isEUR ? 0 : (parseFloat(document.getElementById('exchangeRate').value) || 0),
+                currency_after: 'EUR',
+                foreign_tax: parseFloat(document.getElementById('foreignTax').value) || 0,
+                collection_fee: parseFloat(document.getElementById('collectionFee').value) || 0,
+                withholding_tax: parseFloat(document.getElementById('withholdingTax').value) || 0,
+                vat: parseFloat(document.getElementById('vat').value) || 0,
+                total_dividend: parseFloat(document.getElementById('totalDividend').value)
+            };
+
+            try {
+                const response = await fetch('/api/dividends', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dividendData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeAddDividendModal();
+                    await loadDividends();
+                    alert('Dividend added successfully!');
+                } else {
+                    alert('Error saving dividend: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error saving dividend:', error);
+                alert('Error saving dividend: ' + error.message);
+            }
+        }
+
         loadDividends();
     </script>
+
+    {% include 'chatbot.html' %}
 </body>
 </html>

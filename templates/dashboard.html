@@ -6,6 +6,7 @@
     <title>Portfolio Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
         * {
             margin: 0;
@@ -158,26 +159,82 @@
             color: #6b7280;
         }
 
-        /* Charts Section */
-        .charts-section {
+        /* Statistics Section */
+        .statistics-section {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             margin-bottom: 40px;
         }
 
-        .chart-card {
+        .stat-card {
             background: white;
             border-radius: 20px;
-            padding: 35px;
+            padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .chart-card h2 {
-            margin-bottom: 25px;
+        .stat-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 2px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: #333;
+        }
+
+        .stat-value.negative {
+            color: #ef4444;
+        }
+
+        .stat-value.highlight {
+            color: #667eea;
+            font-size: 1.3rem;
+        }
+
+        /* Asset Allocation */
+        .allocation-card {
+            margin-bottom: 40px;
+        }
+
+        .allocation-card h2 {
             font-size: 1.6rem;
             font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .allocation-chart-container {
+            max-width: 400px;
+            max-height: 400px;
+            margin: 0 auto;
+            position: relative;
         }
 
         /* Top Holdings */
@@ -284,10 +341,6 @@
         }
 
         @media (max-width: 968px) {
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
-
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -324,11 +377,15 @@
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="logo">Portfolio Tracker</div>
             <div class="nav-links">
                 <a href="/" class="active">Dashboard</a>
                 <a href="/holdings">Holdings</a>
                 <a href="/transactions">Transactions</a>
+                <a href="/dividends">Dividends</a>
+                <a href="/money-invested">Money Invested</a>
+                <a href="/capital-gains-tax">Tax Calculator</a>
+                <a href="/logout" style="color: #ef4444;">Logout</a>
             </div>
         </nav>
 
@@ -372,17 +429,83 @@
                     <div class="stat-value" id="totalInvested">€0.00</div>
                     <div class="stat-change neutral">Initial investment</div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">💳</div>
+                    <div class="stat-label">Cash Position</div>
+                    <div class="stat-value" id="cashPosition">€0.00</div>
+                    <div class="stat-change neutral">Available cash</div>
+                </div>
             </div>
 
             <!-- Charts Section -->
-            <div class="charts-section">
-                <div class="chart-card">
-                    <h2>Portfolio Performance (30 Days)</h2>
-                    <canvas id="performanceChart"></canvas>
+            <!-- Portfolio Statistics -->
+            <div class="statistics-section">
+                <div class="stat-card">
+                    <h2>Transaction Fees</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">Brokerage Fees</span>
+                        <span class="stat-value negative" id="brokerageFees">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Stock Market Fees</span>
+                        <span class="stat-value negative" id="stockMarketFees">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Transaction Fees</span>
+                        <span class="stat-value negative highlight" id="totalTransactionFees">€0.00</span>
+                    </div>
                 </div>
 
-                <div class="chart-card">
-                    <h2>Asset Allocation</h2>
+                <div class="stat-card">
+                    <h2>Dividend Fees & Taxes</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">Withholding Tax</span>
+                        <span class="stat-value negative" id="withholdingTax">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Foreign Tax</span>
+                        <span class="stat-value negative" id="foreignTax">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Collection Fees</span>
+                        <span class="stat-value negative" id="collectionFees">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">VAT</span>
+                        <span class="stat-value negative" id="vatFees">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Dividend Fees</span>
+                        <span class="stat-value negative highlight" id="totalDividendFees">€0.00</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h2>Investment Summary</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Money Deposited</span>
+                        <span class="stat-value highlight" id="totalDeposits">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total All Fees</span>
+                        <span class="stat-value negative" id="totalAllFees">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total All Taxes</span>
+                        <span class="stat-value negative" id="totalAllTaxes">€0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Fees & Taxes</span>
+                        <span class="stat-value negative highlight" id="totalFeesAndTaxes">€0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Allocation -->
+            <div class="stat-card allocation-card">
+                <h2>Asset Allocation</h2>
+                <div class="allocation-chart-container">
                     <canvas id="allocationChart"></canvas>
                 </div>
             </div>
@@ -411,9 +534,8 @@
                 document.getElementById('totalValue').textContent = `€${data.total_value.toLocaleString()}`;
                 document.getElementById('totalGain').textContent = `€${data.total_gain.toLocaleString()}`;
                 document.getElementById('investmentCount').textContent = data.investments.length;
-
-                const totalInvested = data.total_value - data.total_gain;
-                document.getElementById('totalInvested').textContent = `€${totalInvested.toLocaleString()}`;
+                document.getElementById('totalInvested').textContent = `€${data.total_invested.toLocaleString()}`;
+                document.getElementById('cashPosition').textContent = `€${data.cash_position.toLocaleString()}`;
 
                 const gainPercentageEl = document.getElementById('gainPercentage');
                 const isPositive = data.gain_percentage >= 0;
@@ -446,63 +568,39 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
 
-                // Load charts
-                await Promise.all([loadPerformanceChart(), loadAllocationChart(data.investments)]);
+                // Load statistics and allocation chart
+                await Promise.all([loadStatistics(), loadAllocationChart(data.investments)]);
             } catch (error) {
                 console.error('Error loading dashboard:', error);
                 document.getElementById('loading').textContent = 'Error loading dashboard';
             }
         }
 
-        async function loadPerformanceChart() {
-            const response = await fetch('/api/chart-data');
-            const data = await response.json();
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/api/portfolio-statistics');
+                const stats = await response.json();
 
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => d.date),
-                    datasets: [{
-                        label: 'Portfolio Value',
-                        data: data.map(d => d.value),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        borderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return `€${context.parsed.y.toLocaleString()}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                callback: function(value) {
-                                    return '€' + value.toLocaleString();
-                                }
-                            },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
+                // Transaction Fees
+                document.getElementById('brokerageFees').textContent = `€${stats.transaction_fees.brokerage_fees.toFixed(2)}`;
+                document.getElementById('stockMarketFees').textContent = `€${stats.transaction_fees.stock_market_fees.toFixed(2)}`;
+                document.getElementById('totalTransactionFees').textContent = `€${stats.transaction_fees.total.toFixed(2)}`;
+
+                // Dividend Fees & Taxes
+                document.getElementById('withholdingTax').textContent = `€${stats.taxes.withholding_tax.toFixed(2)}`;
+                document.getElementById('foreignTax').textContent = `€${stats.taxes.foreign_tax.toFixed(2)}`;
+                document.getElementById('collectionFees').textContent = `€${stats.dividend_fees.collection_fees.toFixed(2)}`;
+                document.getElementById('vatFees').textContent = `€${stats.dividend_fees.vat.toFixed(2)}`;
+                document.getElementById('totalDividendFees').textContent = `€${stats.dividend_fees.total.toFixed(2)}`;
+
+                // Investment Summary
+                document.getElementById('totalDeposits').textContent = `€${stats.totals.total_deposits.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('totalAllFees').textContent = `€${stats.totals.total_fees.toFixed(2)}`;
+                document.getElementById('totalAllTaxes').textContent = `€${stats.totals.total_taxes.toFixed(2)}`;
+                document.getElementById('totalFeesAndTaxes').textContent = `€${stats.totals.total_fees_and_taxes.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
         }
 
         function loadAllocationChart(investments) {
@@ -547,5 +645,7 @@
 
         loadDashboard();
     </script>
+
+    {% include 'chatbot.html' %}
 </body>
 </html>

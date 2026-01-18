@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Holdings - Portfolio Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,7 +22,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -77,6 +78,11 @@
         .header-content {
             flex: 1;
             text-align: center;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
         }
 
         header h1 {
@@ -214,12 +220,15 @@
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             border-left: 5px solid #667eea;
+            cursor: pointer;
+            position: relative;
         }
 
         .investment-card:hover {
             transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
         .investment-header {
@@ -227,12 +236,39 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .investment-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #f8f9fa;
+            padding: 5px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .investment-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .investment-text {
+            flex: 1;
+            min-width: 0;
         }
 
         .investment-name {
             font-size: 1.2rem;
             font-weight: 600;
             color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .investment-symbol {
@@ -242,6 +278,8 @@
             background: #f0f4ff;
             padding: 5px 10px;
             border-radius: 5px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .investment-details {
@@ -439,6 +477,385 @@
             background: #ef4444;
         }
 
+        /* Side Panel Styles */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: -600px;
+            width: 600px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 3000;
+            overflow-y: auto;
+        }
+
+        .side-panel.active {
+            right: 0;
+        }
+
+        .side-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 2999;
+        }
+
+        .side-panel-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 80px 30px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .panel-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: white;
+            padding: 8px;
+            flex-shrink: 0;
+        }
+
+        .panel-text-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .side-panel-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.8rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .side-panel-header .ticker {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-panel:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .side-panel-content {
+            padding: 30px;
+        }
+
+        .action-section {
+            margin-bottom: 30px;
+        }
+
+        .action-section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* Stock Summary Section */
+        .stock-summary {
+            background: linear-gradient(135deg, #f7f9fc 0%, #e8eef7 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #667eea;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .summary-value.large {
+            font-size: 1.3rem;
+        }
+
+        .summary-value.positive {
+            color: #10b981;
+        }
+
+        .summary-value.negative {
+            color: #ef4444;
+        }
+
+        .summary-divider {
+            grid-column: 1 / -1;
+            height: 1px;
+            background: #d1d5db;
+            margin: 10px 0;
+        }
+
+        .action-item {
+            background: #f7f9fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-item:hover {
+            background: #eef2f7;
+            transform: translateX(5px);
+        }
+
+        .action-item.buy {
+            border-left-color: #10b981;
+        }
+
+        .action-item.sell {
+            border-left-color: #ef4444;
+        }
+
+        .action-item.dividend {
+            border-left-color: #f59e0b;
+        }
+
+        .action-info {
+            flex: 1;
+        }
+
+        .action-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .action-type.buy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .action-type.sell {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-type.dividend {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .action-details {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .action-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-edit:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Edit Mode Styles */
+        .action-item.edit-mode {
+            background: white;
+            border: 2px solid #3b82f6;
+            padding: 20px;
+        }
+
+        .edit-form {
+            margin-top: 15px;
+        }
+
+        .edit-field {
+            margin-bottom: 12px;
+        }
+
+        .edit-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .edit-field input,
+        .edit-field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .edit-field input:focus,
+        .edit-field textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .edit-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .side-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -465,17 +882,858 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Stock Analysis Section */
+        .analysis-section {
+            margin-top: 80px;
+            clear: both;
+            position: relative;
+            z-index: 1;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .analysis-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: #f8f9fa;
+            padding: 6px;
+        }
+
+        .analysis-title {
+            flex: 1;
+        }
+
+        .analysis-stock-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .analysis-stock-ticker {
+            font-size: 0.85rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .metrics-section {
+            margin-bottom: 20px;
+        }
+
+        .metrics-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .metrics-section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        .metric-value.good {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .metric-value.warning {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .metric-value.bad {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .metric-value.neutral {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .metric-info {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .loading-analysis {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        /* Chart Modal Styles */
+        .chart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .chart-modal.active {
+            display: flex;
+        }
+
+        .chart-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .chart-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .chart-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .chart-modal-subtitle {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .chart-modal-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chart-modal-close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .modal-chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .chart-loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* Clickable metric indicator */
+        .metric-row {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            padding: 8px;
+            margin: -8px;
+        }
+
+        .metric-row:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(4px);
+        }
+
+        .metric-row.clickable::after {
+            content: '📊';
+            margin-left: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .metric-row.clickable:hover::after {
+            opacity: 1;
+        }
+
+        /* News Feed Section */
+        .news-section {
+            margin-top: 80px;
+            clear: both;
+        }
+
+        .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .news-card-link {
+            text-decoration: none;
+            display: block;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .news-card:hover .news-title {
+            color: #667eea;
+        }
+
+        .news-ticker-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .news-content {
+            flex: 1;
+        }
+
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .news-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-source {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .news-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .news-empty {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.8);
+            font-size: 1rem;
+        }
+
+        /* News Summary Styles */
+        .news-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .summaries-container {
+            margin-bottom: 30px;
+        }
+
+        .summaries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+            border-radius: 15px;
+            padding: 20px 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #10b981;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .summary-ticker {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .summary-label {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-text {
+            color: #374151;
+            line-height: 1.7;
+            font-size: 0.9rem;
+        }
+
+        .summary-text p {
+            margin: 0 0 10px 0;
+        }
+
+        .summary-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-text strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .summary-text em {
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        .summary-list {
+            margin: 10px 0;
+            padding-left: 20px;
+            list-style-type: none;
+        }
+
+        .summary-list li {
+            position: relative;
+            padding-left: 16px;
+            margin-bottom: 8px;
+            color: #4b5563;
+        }
+
+        .summary-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .summary-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .summary-section {
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .summary-section:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .summary-section-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .summary-section-content {
+            color: #374151;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .summary-section-content.summary-no-data {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .summary-error-text {
+            color: #9ca3af;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .summary-loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 1rem;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .summary-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-empty {
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .summary-skipped {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .skip-summaries-btn,
+        .retry-summaries-btn {
+            margin-left: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .skip-summaries-btn:hover,
+        .retry-summaries-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .summary-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.8);
+            padding: 20px;
+        }
+
+        .summary-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 6px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .news-card {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .news-ticker-badge {
+                align-self: flex-start;
+            }
+
+            .summaries-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Chatbot Styles */
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .chatbot-button svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .chatbot-button.active {
+            transform: rotate(90deg);
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chatbot-container.open {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chatbot-header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-header-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .chatbot-header-text h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chatbot-header-text p {
+            margin: 2px 0 0 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f9fafb;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .chat-message.bot {
+            background: white;
+            color: #374151;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chat-message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.typing {
+            display: flex;
+            gap: 4px;
+            padding: 16px 20px;
+        }
+
+        .chat-message.typing span {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .chat-message.typing span:nth-child(1) { animation-delay: 0s; }
+        .chat-message.typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-message.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .chatbot-input {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chatbot-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chatbot-input button {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .chatbot-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .chatbot-input button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chatbot-input button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-container {
+                width: calc(100% - 40px);
+                right: 20px;
+                bottom: 90px;
+                height: 60vh;
+            }
+
+            .chatbot-button {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="logo">Portfolio Tracker</div>
             <div class="nav-links">
                 <a href="/">Dashboard</a>
                 <a href="/holdings" class="active">Holdings</a>
                 <a href="/transactions">Transactions</a>
+                <a href="/dividends">Dividends</a>
+                <a href="/money-invested">Money Invested</a>
+                <a href="/capital-gains-tax">Tax Calculator</a>
+                <a href="/logout" style="color: #ef4444;">Logout</a>
             </div>
         </nav>
 
@@ -483,9 +1741,12 @@
             <div></div>
             <div class="header-content">
                 <h1>My Holdings</h1>
-                <p>Manage your investment portfolio</p>
+                <p>View your investment portfolio</p>
             </div>
-            <button class="btn btn-primary" onclick="openAddModal()">+ Add Investment</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="downloadPDF()" style="background: #10b981; color: white;">Download PDF</button>
+                <button class="btn btn-primary" onclick="toggleAnonymize()" id="anonymizeBtn" style="background: #667eea; color: white;">Anonymize Values</button>
+            </div>
         </header>
 
         <div id="loading" class="loading pulse">
@@ -532,6 +1793,34 @@
                 </div>
 
                 <div id="realizedHoldingsContainer" style="margin-top: 30px;"></div>
+            </div>
+
+            <!-- Stock Analysis Section -->
+            <div class="analysis-section">
+                <h2 style="color: white; font-size: 2rem; margin-bottom: 20px; text-align: center;">Stock Analysis & Metrics</h2>
+                <p style="color: white; text-align: center; opacity: 0.9; margin-bottom: 30px;">Valuation and profitability metrics for your active holdings</p>
+
+                <div id="analysisLoading" class="loading-analysis">
+                    Loading stock analysis...
+                </div>
+
+                <div id="analysisGrid" class="analysis-grid" style="display: none;"></div>
+            </div>
+
+            <!-- News Feed Section -->
+            <div class="news-section">
+                <div class="news-header">
+                    <h2 style="color: white; font-size: 2rem; margin-bottom: 10px;">Latest News</h2>
+                    <p style="color: white; opacity: 0.9;">Recent news articles for your portfolio holdings</p>
+                </div>
+
+                <div id="summariesContainer" class="summaries-container"></div>
+
+                <div id="newsLoading" class="news-loading">
+                    Loading news feed...
+                </div>
+
+                <div id="newsGrid" class="news-grid" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -612,6 +1901,24 @@
         </div>
     </div>
 
+    <!-- Side Panel Overlay -->
+    <div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+
+    <!-- Side Panel -->
+    <div class="side-panel" id="sidePanel">
+        <div class="side-panel-header">
+            <img id="panelStockLogo" src="" alt="Stock logo" class="panel-logo" style="display: none;">
+            <div class="panel-text-content">
+                <h2 id="panelStockName">Stock Name</h2>
+                <div class="ticker" id="panelStockTicker">TICKER</div>
+            </div>
+            <button class="close-panel" onclick="closeSidePanel()">×</button>
+        </div>
+        <div class="side-panel-content" id="sidePanelContent">
+            <div class="loading pulse">Loading actions...</div>
+        </div>
+    </div>
+
     <script>
         let currentEditId = null;
         let currentSellInvestment = null;
@@ -625,6 +1932,592 @@
             setTimeout(() => {
                 notification.remove();
             }, 3000);
+        }
+
+        async function downloadPDF() {
+            try {
+                showNotification('Generating PDF report...', 'success');
+
+                const response = await fetch('/api/holdings-pdf');
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate PDF');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `holdings_report_${new Date().toISOString().split('T')[0]}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('PDF downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                showNotification('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+
+        let isAnonymized = false;
+
+        function toggleAnonymize() {
+            isAnonymized = !isAnonymized;
+            const btn = document.getElementById('anonymizeBtn');
+
+            if (isAnonymized) {
+                btn.textContent = 'Show Values';
+                btn.style.background = '#ef4444';
+                anonymizeValues();
+                showNotification('Values anonymized', 'success');
+            } else {
+                btn.textContent = 'Anonymize Values';
+                btn.style.background = '#667eea';
+                showValues();
+                showNotification('Values visible', 'success');
+            }
+        }
+
+        function anonymizeValues() {
+            // Anonymize dashboard totals - only elements with IDs that contain euro values
+            const totalValue = document.getElementById('totalValue');
+            const totalGain = document.getElementById('totalGain');
+
+            if (totalValue && totalValue.textContent.includes('€')) {
+                totalValue.dataset.original = totalValue.textContent;
+                totalValue.textContent = '€•••••';
+                totalValue.style.filter = 'blur(8px)';
+            }
+
+            if (totalGain && totalGain.textContent.includes('€')) {
+                totalGain.dataset.original = totalGain.textContent;
+                totalGain.textContent = '€•••••';
+                totalGain.style.filter = 'blur(8px)';
+            }
+
+            // Anonymize investment card values (except shares, purchase price, current price)
+            document.querySelectorAll('.detail-value').forEach(el => {
+                const label = el.closest('.detail')?.querySelector('.detail-label')?.textContent;
+
+                // Keep these visible: Shares, Purchase Price, Current Price, Change %
+                if (label && !label.includes('Shares') && !label.includes('Purchase Price') &&
+                    !label.includes('Current Price') && !label.includes('Change')) {
+                    if (el.textContent.includes('€')) {
+                        el.dataset.original = el.textContent;
+                        el.textContent = '€•••••';
+                        el.style.filter = 'blur(8px)';
+                    }
+                }
+            });
+
+            // Anonymize realized holdings totals
+            const totalProceeds = document.getElementById('totalProceeds');
+            const totalCostBasis = document.getElementById('totalCostBasis');
+            const totalRealizedGain = document.getElementById('totalRealizedGain');
+
+            if (totalProceeds && totalProceeds.textContent.includes('€')) {
+                totalProceeds.dataset.original = totalProceeds.textContent;
+                totalProceeds.textContent = '€•••••';
+                totalProceeds.style.filter = 'blur(8px)';
+            }
+
+            if (totalCostBasis && totalCostBasis.textContent.includes('€')) {
+                totalCostBasis.dataset.original = totalCostBasis.textContent;
+                totalCostBasis.textContent = '€•••••';
+                totalCostBasis.style.filter = 'blur(8px)';
+            }
+
+            if (totalRealizedGain && totalRealizedGain.textContent.includes('€')) {
+                totalRealizedGain.dataset.original = totalRealizedGain.textContent;
+                totalRealizedGain.textContent = '€•••••';
+                totalRealizedGain.style.filter = 'blur(8px)';
+            }
+        }
+
+        function showValues() {
+            // Restore all anonymized values
+            document.querySelectorAll('[data-original]').forEach(el => {
+                el.textContent = el.dataset.original;
+                el.style.filter = 'none';
+                delete el.dataset.original;
+            });
+        }
+
+        // Side Panel Functions
+        async function openStockPanel(ticker, name) {
+            document.getElementById('panelStockName').textContent = name;
+            document.getElementById('panelStockTicker').textContent = ticker;
+
+            // Set logo
+            const logoEl = document.getElementById('panelStockLogo');
+            const logoUrl = getLogoUrl(ticker);
+            logoEl.src = logoUrl;
+            logoEl.style.display = 'block';
+            logoEl.onerror = function() { this.style.display = 'none'; };
+
+            document.getElementById('sidePanel').classList.add('active');
+            document.getElementById('sidePanelOverlay').classList.add('active');
+
+            // Show loading state immediately
+            document.getElementById('sidePanelContent').innerHTML = '<div class="loading pulse">Loading stock data...</div>';
+
+            // Load stock actions
+            await loadStockActions(ticker);
+        }
+
+        function closeSidePanel() {
+            document.getElementById('sidePanel').classList.remove('active');
+            document.getElementById('sidePanelOverlay').classList.remove('active');
+        }
+
+        async function loadStockActions(ticker) {
+            try {
+                const response = await fetch(`/api/stock-actions/${ticker}`);
+                const data = await response.json();
+
+                const contentEl = document.getElementById('sidePanelContent');
+
+                // Check if both are empty
+                const hasTransactions = data.transactions && data.transactions.length > 0;
+                const hasDividends = data.dividends && data.dividends.length > 0;
+
+                if (!hasTransactions && !hasDividends) {
+                    contentEl.innerHTML = `
+                        <div class="empty-state">
+                            <p>No actions found for this stock</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                const summary = data.summary || {};
+
+                // Stock Summary Section
+                const stockGainIsPositive = summary.gain_loss_stock >= 0;
+                const dividendGainIsPositive = summary.gain_loss_with_dividends >= 0;
+                const fxGainIsPositive = summary.gain_loss_with_fx >= 0;
+                const hasFx = summary.currency !== 'EUR';
+
+                html += `
+                    <div class="stock-summary">
+                        <div class="action-section-title" style="border-bottom: none; margin-bottom: 10px;">Stock Summary</div>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-label">Total Shares</div>
+                                <div class="summary-value">${summary.total_shares || 0}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Avg Purchase Price</div>
+                                <div class="summary-value">€${(summary.avg_purchase_price || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Total Purchase Cost</div>
+                                <div class="summary-value large">€${(summary.total_purchase_cost || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Current Price</div>
+                                <div class="summary-value">€${(summary.current_price || 0).toFixed(2)}</div>
+                            </div>
+                            <div class="summary-item" style="grid-column: 1 / -1;">
+                                <div class="summary-label">Total Market Value</div>
+                                <div class="summary-value large" style="color: #667eea;">€${(summary.total_market_value || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-item">
+                                <div class="summary-label">Gain/Loss (Stock Only)</div>
+                                <div class="summary-value ${stockGainIsPositive ? 'positive' : 'negative'}">
+                                    ${stockGainIsPositive ? '+' : ''}€${(summary.gain_loss_stock || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">% Won (Stock Only)</div>
+                                <div class="summary-value ${stockGainIsPositive ? 'positive' : 'negative'}">
+                                    ${stockGainIsPositive ? '+' : ''}${(summary.gain_loss_percent_stock || 0).toFixed(2)}%
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Total Dividends</div>
+                                <div class="summary-value" style="color: #10b981;">€${(summary.total_dividends || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">% Including Dividends</div>
+                                <div class="summary-value ${dividendGainIsPositive ? 'positive' : 'negative'}">
+                                    ${dividendGainIsPositive ? '+' : ''}${(summary.gain_loss_percent_with_dividends || 0).toFixed(2)}%
+                                </div>
+                            </div>
+
+                            ${hasFx ? `
+                            <div class="summary-divider"></div>
+                            <div class="summary-item">
+                                <div class="summary-label">FX Impact (${summary.currency})</div>
+                                <div class="summary-value ${summary.fx_impact >= 0 ? 'positive' : 'negative'}">
+                                    ${summary.fx_impact >= 0 ? '+' : ''}€${(summary.fx_impact || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">% Including FX</div>
+                                <div class="summary-value ${fxGainIsPositive ? 'positive' : 'negative'}">
+                                    ${fxGainIsPositive ? '+' : ''}${(summary.gain_loss_percent_with_fx || 0).toFixed(2)}%
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                // Transactions Section
+                if (data.transactions && data.transactions.length > 0) {
+                    html += `
+                        <div class="action-section">
+                            <div class="action-section-title">Transactions</div>
+                    `;
+
+                    data.transactions.forEach(txn => {
+                        const actionType = txn.ACTION.toLowerCase();
+                        const actionClass = actionType === 'buy' || actionType === 'purchase' ? 'buy' : 'sell';
+
+                        html += `
+                            <div class="action-item ${actionClass}" id="txn-${txn.TransactionID}" data-txn='${JSON.stringify(txn).replace(/'/g, "&apos;")}'>
+                                <div class="action-info">
+                                    <div class="action-type ${actionClass}">${txn.ACTION}</div>
+                                    <div class="action-details">
+                                        ${txn.QUANTITY} shares @ €${parseFloat(txn.PRICE).toFixed(2)} = €${parseFloat(txn['TOTAL PURCHASE PRICE']).toFixed(2)}
+                                    </div>
+                                    <div class="action-date">${new Date(txn.DATE).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-icon btn-edit" onclick="editTransaction(${txn.TransactionID}, event)">Edit</button>
+                                    <button class="btn-icon btn-delete" onclick="deleteTransaction(${txn.TransactionID}, event)">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+                }
+
+                // Dividends Section
+                if (data.dividends && data.dividends.length > 0) {
+                    html += `
+                        <div class="action-section">
+                            <div class="action-section-title">Dividends</div>
+                    `;
+
+                    data.dividends.forEach(div => {
+                        const totalDividend = parseFloat(div.TOTAL_DIVIDEND || div['VALUE RECEIVED BEFORE TAX'] || 0);
+                        const stockName = div.NAME || '';
+
+                        html += `
+                            <div class="action-item dividend" id="div-${div.DividendID}" data-div='${JSON.stringify(div).replace(/'/g, "&apos;")}'>
+                                <div class="action-info">
+                                    <div class="action-type dividend">Dividend</div>
+                                    <div class="action-details">
+                                        €${totalDividend.toFixed(2)} ${stockName ? '- ' + stockName : ''}
+                                    </div>
+                                    <div class="action-date">${new Date(div.DATE).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-icon btn-edit" onclick="editDividend(${div.DividendID}, event)">Edit</button>
+                                    <button class="btn-icon btn-delete" onclick="deleteDividend(${div.DividendID}, event)">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+                }
+
+                contentEl.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading stock actions:', error);
+                document.getElementById('sidePanelContent').innerHTML = `
+                    <div class="empty-state">
+                        <p>Error loading actions</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function editTransaction(id, event) {
+            event.stopPropagation();
+
+            const itemEl = document.getElementById(`txn-${id}`);
+            const txnData = JSON.parse(itemEl.dataset.txn);
+
+            // Build edit form with all fields
+            const editForm = `
+                <div class="edit-form">
+                    <div class="edit-field">
+                        <label>Date</label>
+                        <input type="date" id="edit-date-${id}" value="${txnData.DATE}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Ticker</label>
+                        <input type="text" id="edit-ticker-${id}" value="${txnData.TICKER}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Name</label>
+                        <input type="text" id="edit-name-${id}" value="${txnData.NAME || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Action</label>
+                        <input type="text" id="edit-action-${id}" value="${txnData.ACTION}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Quantity</label>
+                        <input type="number" id="edit-quantity-${id}" value="${txnData.QUANTITY}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Price</label>
+                        <input type="number" step="0.01" id="edit-price-${id}" value="${txnData.PRICE}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Total Purchase Price</label>
+                        <input type="number" step="0.01" id="edit-total-${id}" value="${txnData['TOTAL PURCHASE PRICE']}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Currency From</label>
+                        <input type="text" id="edit-currency-from-${id}" value="${txnData['CURRENCY FROM'] || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Currency To</label>
+                        <input type="text" id="edit-currency-to-${id}" value="${txnData['CURRENCY TO'] || 'EUR'}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Exchange Rate</label>
+                        <input type="number" step="0.0001" id="edit-exchange-rate-${id}" value="${txnData['EXCHANGE RATE'] || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Price Before Currency</label>
+                        <input type="number" step="0.01" id="edit-price-before-${id}" value="${txnData['PRICE BEFORE CURRENCY'] || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Total Amount BT</label>
+                        <input type="number" step="0.01" id="edit-amount-bt-${id}" value="${txnData['TOTAL AMOUNT BT'] || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Brokerage Fee</label>
+                        <input type="number" step="0.01" id="edit-brokerage-${id}" value="${txnData['BROKERAGE FEE'] || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Stock Market Fee</label>
+                        <input type="number" step="0.01" id="edit-market-fee-${id}" value="${txnData['STOCK MARKET FEE'] || ''}" />
+                    </div>
+                    <div class="edit-actions">
+                        <button class="btn-save" onclick="saveTransaction(${id}, event)">Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit(${id}, 'txn', event)">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            itemEl.classList.add('edit-mode');
+            itemEl.innerHTML = editForm;
+        }
+
+        async function deleteTransaction(id, event) {
+            event.stopPropagation();
+
+            if (!confirm('Are you sure you want to delete this transaction?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/transactions/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Transaction deleted successfully', 'success');
+                    // Reload the current stock's actions
+                    const ticker = document.getElementById('panelStockTicker').textContent;
+                    await loadStockActions(ticker);
+                    await loadPortfolio(); // Refresh main view
+                } else {
+                    showNotification('Error deleting transaction: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error deleting transaction: ' + error.message, 'error');
+            }
+        }
+
+        async function editDividend(id, event) {
+            event.stopPropagation();
+
+            const itemEl = document.getElementById(`div-${id}`);
+            const divData = JSON.parse(itemEl.dataset.div);
+
+            // Build edit form with all fields from Dividend table
+            const editForm = `
+                <div class="edit-form">
+                    <div class="edit-field">
+                        <label>Date</label>
+                        <input type="date" id="edit-div-date-${id}" value="${divData.DATE}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Ticker</label>
+                        <input type="text" id="edit-div-ticker-${id}" value="${divData.TICKER}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Name</label>
+                        <input type="text" id="edit-div-name-${id}" value="${divData.NAME || ''}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Is ETF</label>
+                        <input type="checkbox" id="edit-div-etf-${id}" ${divData.ETF == 1 ? 'checked' : ''} />
+                    </div>
+                    <div class="edit-field">
+                        <label>Gross Amount (Before Tax)</label>
+                        <input type="number" step="0.01" id="edit-div-gross-${id}" value="${divData['VALUE RECEIVED BEFORE TAX'] || 0}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Foreign Tax</label>
+                        <input type="number" step="0.01" id="edit-div-foreign-tax-${id}" value="${divData['BUITENLANDSE BRONHEFFING'] || 0}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Collection Fee</label>
+                        <input type="number" step="0.01" id="edit-div-collection-fee-${id}" value="${divData['KOSTEN INCASSOSTELLING'] || 0}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Withholding Tax</label>
+                        <input type="number" step="0.01" id="edit-div-withholding-${id}" value="${divData['ROERENDE VOORHEFFING'] || 0}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>VAT</label>
+                        <input type="number" step="0.01" id="edit-div-vat-${id}" value="${divData['BTW'] || 0}" />
+                    </div>
+                    <div class="edit-field">
+                        <label>Total Dividend</label>
+                        <input type="number" step="0.01" id="edit-div-total-${id}" value="${divData['TOTAL_DIVIDEND'] || 0}" />
+                    </div>
+                    <div class="edit-actions">
+                        <button class="btn-save" onclick="saveDividend(${id}, event)">Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit(${id}, 'div', event)">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            itemEl.classList.add('edit-mode');
+            itemEl.innerHTML = editForm;
+        }
+
+        async function deleteDividend(id, event) {
+            event.stopPropagation();
+
+            if (!confirm('Are you sure you want to delete this dividend?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/dividends/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Dividend deleted successfully', 'success');
+                    // Reload the current stock's actions
+                    const ticker = document.getElementById('panelStockTicker').textContent;
+                    await loadStockActions(ticker);
+                } else {
+                    showNotification('Error deleting dividend: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error deleting dividend: ' + error.message, 'error');
+            }
+        }
+
+        async function saveTransaction(id, event) {
+            event.stopPropagation();
+
+            const updatedData = {
+                date: document.getElementById(`edit-date-${id}`).value,
+                ticker: document.getElementById(`edit-ticker-${id}`).value,
+                name: document.getElementById(`edit-name-${id}`).value,
+                action: document.getElementById(`edit-action-${id}`).value,
+                quantity: document.getElementById(`edit-quantity-${id}`).value,
+                price: document.getElementById(`edit-price-${id}`).value,
+                total_purchase_price: document.getElementById(`edit-total-${id}`).value,
+                currency_from: document.getElementById(`edit-currency-from-${id}`).value,
+                currency_to: document.getElementById(`edit-currency-to-${id}`).value,
+                exchange_rate: document.getElementById(`edit-exchange-rate-${id}`).value || null,
+                price_before_currency: document.getElementById(`edit-price-before-${id}`).value || null,
+                total_amount_bt: document.getElementById(`edit-amount-bt-${id}`).value || null,
+                brokerage_fee: document.getElementById(`edit-brokerage-${id}`).value || null,
+                stock_market_fee: document.getElementById(`edit-market-fee-${id}`).value || null
+            };
+
+            try {
+                const response = await fetch(`/api/transactions/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Transaction updated successfully', 'success');
+                    const ticker = document.getElementById('panelStockTicker').textContent;
+                    await loadStockActions(ticker);
+                    await loadPortfolio();
+                } else {
+                    showNotification('Error updating transaction: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error updating transaction: ' + error.message, 'error');
+            }
+        }
+
+        async function saveDividend(id, event) {
+            event.stopPropagation();
+
+            const updatedData = {
+                date: document.getElementById(`edit-div-date-${id}`).value,
+                ticker: document.getElementById(`edit-div-ticker-${id}`).value,
+                name: document.getElementById(`edit-div-name-${id}`).value,
+                is_etf: document.getElementById(`edit-div-etf-${id}`).checked ? 1 : 0,
+                gross_amount: document.getElementById(`edit-div-gross-${id}`).value,
+                foreign_tax: document.getElementById(`edit-div-foreign-tax-${id}`).value,
+                collection_fee: document.getElementById(`edit-div-collection-fee-${id}`).value,
+                withholding_tax: document.getElementById(`edit-div-withholding-${id}`).value,
+                vat: document.getElementById(`edit-div-vat-${id}`).value,
+                total_dividend: document.getElementById(`edit-div-total-${id}`).value
+            };
+
+            try {
+                const response = await fetch(`/api/dividends/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('Dividend updated successfully', 'success');
+                    const ticker = document.getElementById('panelStockTicker').textContent;
+                    await loadStockActions(ticker);
+                } else {
+                    showNotification('Error updating dividend: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error updating dividend: ' + error.message, 'error');
+            }
+        }
+
+        async function cancelEdit(id, type, event) {
+            event.stopPropagation();
+            const ticker = document.getElementById('panelStockTicker').textContent;
+            await loadStockActions(ticker);
         }
 
         function openAddModal() {
@@ -793,6 +2686,12 @@
             }
         }
 
+        // Get logo URL from LogoKit API
+        function getLogoUrl(ticker) {
+            // Use LogoKit API with ticker symbol
+            return `https://img.logokit.com/ticker/${ticker}?token=pk_fr3b0beff1dbc498d457dd&format=png&size=80`;
+        }
+
         async function loadPortfolio() {
             try {
                 const response = await fetch('/api/portfolio');
@@ -811,10 +2710,22 @@
                 const investmentsGrid = document.getElementById('investmentsGrid');
                 investmentsGrid.innerHTML = data.investments.map(inv => {
                     const isPositive = inv.change >= 0;
+                    const gainIsPositive = inv.absolute_gain_loss >= 0;
+                    const fxIsPositive = inv.fx_impact >= 0;
+                    const hasFxImpact = inv.currency !== 'EUR' && Math.abs(inv.fx_impact) > 0.01;
+
+                    // Get logo from LogoKit API
+                    const logoUrl = getLogoUrl(inv.symbol);
+
                     return `
-                        <div class="investment-card">
+                        <div class="investment-card" onclick="openStockPanel('${inv.symbol}', '${inv.name.replace(/'/g, "\\'")}')">
                             <div class="investment-header">
-                                <div class="investment-name">${inv.name}</div>
+                                <div class="investment-info">
+                                    <img src="${logoUrl}" alt="${inv.symbol} logo" class="investment-logo" onerror="this.style.display='none'">
+                                    <div class="investment-text">
+                                        <div class="investment-name">${inv.name}</div>
+                                    </div>
+                                </div>
                                 <div class="investment-symbol">${inv.symbol}</div>
                             </div>
                             <div class="investment-details">
@@ -831,20 +2742,29 @@
                                     <div class="detail-value">€${inv.current_price.toFixed(2)}</div>
                                 </div>
                                 <div class="detail">
-                                    <div class="detail-label">Change</div>
+                                    <div class="detail-label">Change %</div>
                                     <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
                                         ${isPositive ? '+' : ''}${inv.change.toFixed(2)}%
                                     </div>
                                 </div>
+                                <div class="detail">
+                                    <div class="detail-label">Gain/Loss</div>
+                                    <div class="detail-value ${gainIsPositive ? 'positive' : 'negative'}">
+                                        ${gainIsPositive ? '+' : ''}€${inv.absolute_gain_loss.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    </div>
+                                </div>
+                                ${hasFxImpact ? `
+                                <div class="detail">
+                                    <div class="detail-label">FX Impact</div>
+                                    <div class="detail-value ${fxIsPositive ? 'positive' : 'negative'}">
+                                        ${fxIsPositive ? '+' : ''}€${inv.fx_impact.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                    </div>
+                                </div>
+                                ` : ''}
                             </div>
                             <div class="detail" style="margin-top: 15px;">
                                 <div class="detail-label">Total Value</div>
                                 <div class="detail-value" style="font-size: 1.5rem; color: #667eea;">€${inv.value.toLocaleString()}</div>
-                            </div>
-                            <div class="investment-actions">
-                                <button class="btn btn-secondary btn-small" onclick='openEditModal(${JSON.stringify(inv)})'>Edit</button>
-                                <button class="btn btn-success btn-small" onclick='openSellModal(${JSON.stringify(inv)})'>Sell</button>
-                                <button class="btn btn-danger btn-small" onclick="deleteInvestment(${inv.id}, '${inv.name}')">Delete</button>
                             </div>
                         </div>
                     `;
@@ -894,10 +2814,16 @@
                             <div class="investments-grid">
                                 ${data.realized_holdings.map(holding => {
                                     const isGain = holding.realized_gain >= 0;
+                                    const logoUrl = getLogoUrl(holding.ticker);
                                     return `
                                         <div class="investment-card" style="border-left-color: ${isGain ? '#10b981' : '#ef4444'};">
                                             <div class="investment-header">
-                                                <div class="investment-name">${holding.name}</div>
+                                                <div class="investment-info">
+                                                    <img src="${logoUrl}" alt="${holding.ticker} logo" class="investment-logo" onerror="this.style.display='none'">
+                                                    <div class="investment-text">
+                                                        <div class="investment-name">${holding.name}</div>
+                                                    </div>
+                                                </div>
                                                 <div class="investment-symbol">${holding.ticker}</div>
                                             </div>
                                             <div class="investment-details">
@@ -958,9 +2884,1343 @@
             }
         }
 
-        // Load data on page load
-        loadPortfolio();
-        loadRealizedHoldings();
+        // Render stock analysis (separated for caching)
+        function renderStockAnalysis(data) {
+            if (!data.stocks || data.stocks.length === 0) {
+                document.getElementById('analysisLoading').textContent = 'No active holdings to analyze';
+                return;
+            }
+
+            document.getElementById('analysisLoading').style.display = 'none';
+            document.getElementById('analysisGrid').style.display = 'grid';
+
+            const analysisGrid = document.getElementById('analysisGrid');
+            const stocksOnly = data.stocks.filter(stock => !stock.is_etf);
+
+            if (stocksOnly.length === 0) {
+                document.getElementById('analysisLoading').textContent = 'No individual stocks to analyze (ETFs excluded)';
+                return;
+            }
+
+            analysisGrid.innerHTML = stocksOnly.map(stock => {
+                const logoUrl = getLogoUrl(stock.ticker);
+
+                return `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <img src="${logoUrl}" alt="${stock.ticker} logo" class="analysis-logo" onerror="this.style.display='none'">
+                            <div class="analysis-title">
+                                <div class="analysis-stock-name">${stock.name}</div>
+                                <div class="analysis-stock-ticker">${stock.ticker}</div>
+                            </div>
+                        </div>
+
+                        <!-- Valuation Metrics -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">📊 Valuation</div>
+                            ${createMetricRow('P/E Ratio', stock.pe_ratio, getPEColor(stock.pe_ratio), 'Price per $1 of earnings', false, false, stock.ticker, 'pe_ratio')}
+                            ${createMetricRow('P/B Ratio', stock.pb_ratio, getPBColor(stock.pb_ratio), 'Market value vs book value', false, false, stock.ticker, 'pb_ratio')}
+                        </div>
+
+                        <!-- Growth Metrics -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">📈 Growth</div>
+                            ${createMetricRow('EPS', stock.eps, 'neutral', 'Earnings per share', false, false, stock.ticker, 'eps')}
+                            ${createMetricRow('Earnings Growth', stock.earnings_growth, getGrowthColor(stock.earnings_growth, 15), 'Year-over-year', true, false, stock.ticker, 'earnings_growth')}
+                            ${createMetricRow('Revenue Growth', stock.revenue_growth, getGrowthColor(stock.revenue_growth, 10), 'Year-over-year', true, false, stock.ticker, 'revenue_growth')}
+                        </div>
+
+                        <!-- Profitability Margins -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">💰 Profitability</div>
+                            ${createMetricRow('Profit Margin', stock.profit_margin, getMarginColor(stock.profit_margin, 20, 10, 5), 'Net profit %', true, false, stock.ticker, 'profit_margin')}
+                            ${createMetricRow('Operating Margin', stock.operating_margin, getMarginColor(stock.operating_margin, 15, 10, 5), 'Operating efficiency %', true, false, stock.ticker, 'operating_margin')}
+                            ${createMetricRow('Gross Margin', stock.gross_margin, getMarginColor(stock.gross_margin, 40, 25, 15), 'Pricing power %', true, false, stock.ticker, 'gross_margin')}
+                            ${createMetricRow('ROE', stock.roe, getROEColor(stock.roe), 'Return on equity', true, false, stock.ticker, 'roe')}
+                        </div>
+
+                        <!-- Financial Health -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">🛡️ Financial Health</div>
+                            ${createMetricRow('Current Ratio', stock.current_ratio, getCurrentRatioColor(stock.current_ratio), 'Short-term coverage', false, false, stock.ticker, 'current_ratio')}
+                            ${createMetricRow('Quick Ratio', stock.quick_ratio, getQuickRatioColor(stock.quick_ratio), 'Immediate liquidity', false, false, stock.ticker, 'quick_ratio')}
+                            ${createMetricRow('Debt/Equity', stock.debt_to_equity, getDebtColor(stock.debt_to_equity), 'Debt relative to equity', false, false, stock.ticker, 'debt_to_equity')}
+                            ${createMetricRow('Free Cash Flow', stock.free_cash_flow, 'neutral', 'Available cash', false, true, stock.ticker, null)}
+                        </div>
+
+                        <!-- Risk Metrics -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">⚠️ Risk</div>
+                            ${createMetricRow('Beta', stock.beta, getBetaColor(stock.beta), 'Volatility vs market', false, false, stock.ticker, 'beta')}
+                        </div>
+
+                        <!-- Technical Analysis -->
+                        <div class="metrics-section">
+                            <div class="metrics-section-title">📉 Technical Analysis</div>
+                            ${createMetricRow('RSI (14-Day)', stock.rsi, getRSIColor(stock.rsi), 'Relative strength index', false, false, stock.ticker, 'rsi')}
+                            ${createMetricRow('200-Day MA Distance', stock.distance_from_ma_200, getMADistanceColor(stock.distance_from_ma_200), 'Position vs MA', true, false, stock.ticker, 'distance_from_ma_200')}
+                            ${createMetricRow('MACD Histogram', stock.macd_histogram, getMACDColor(stock.macd_histogram), 'Momentum indicator', false, false, stock.ticker, 'macd_histogram')}
+                            ${createMetricRow('Bollinger Band %B', stock.bollinger_band_percent_b, getBollingerColor(stock.bollinger_band_percent_b), 'Position in bands', false, false, stock.ticker, 'bollinger_band_percent_b')}
+                            ${createMetricRow('ADX', stock.adx, getADXColor(stock.adx), 'Trend strength', false, false, stock.ticker, 'adx')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load stock analysis (original - kept for compatibility)
+        async function loadStockAnalysisOriginal() {
+            try {
+                const response = await fetch('/api/stock-analysis');
+                const data = await response.json();
+
+                if (!data.stocks || data.stocks.length === 0) {
+                    document.getElementById('analysisLoading').textContent = 'No active holdings to analyze';
+                    return;
+                }
+
+                document.getElementById('analysisLoading').style.display = 'none';
+                document.getElementById('analysisGrid').style.display = 'grid';
+
+                const analysisGrid = document.getElementById('analysisGrid');
+
+                // Filter out ETFs
+                const stocksOnly = data.stocks.filter(stock => !stock.is_etf);
+
+                if (stocksOnly.length === 0) {
+                    document.getElementById('analysisLoading').textContent = 'No individual stocks to analyze (ETFs excluded)';
+                    return;
+                }
+
+                analysisGrid.innerHTML = stocksOnly.map(stock => {
+                    const logoUrl = getLogoUrl(stock.ticker);
+
+                    return `
+                        <div class="analysis-card">
+                            <div class="analysis-header">
+                                <img src="${logoUrl}" alt="${stock.ticker} logo" class="analysis-logo" onerror="this.style.display='none'">
+                                <div class="analysis-title">
+                                    <div class="analysis-stock-name">${stock.name}</div>
+                                    <div class="analysis-stock-ticker">${stock.ticker}</div>
+                                </div>
+                            </div>
+
+                            <!-- Valuation Metrics -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">📊 Valuation</div>
+                                ${createMetricRow('P/E Ratio', stock.pe_ratio, getPEColor(stock.pe_ratio), 'Price per $1 of earnings', false, false, stock.ticker, 'pe_ratio')}
+                                ${createMetricRow('P/B Ratio', stock.pb_ratio, getPBColor(stock.pb_ratio), 'Market value vs book value', false, false, stock.ticker, 'pb_ratio')}
+                            </div>
+
+                            <!-- Growth Metrics -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">📈 Growth</div>
+                                ${createMetricRow('EPS', stock.eps, 'neutral', 'Earnings per share', false, false, stock.ticker, 'eps')}
+                                ${createMetricRow('Earnings Growth', stock.earnings_growth, getGrowthColor(stock.earnings_growth, 15), 'Year-over-year', true, false, stock.ticker, 'earnings_growth')}
+                                ${createMetricRow('Revenue Growth', stock.revenue_growth, getGrowthColor(stock.revenue_growth, 10), 'Year-over-year', true, false, stock.ticker, 'revenue_growth')}
+                            </div>
+
+                            <!-- Profitability Margins -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">💰 Profitability</div>
+                                ${createMetricRow('Profit Margin', stock.profit_margin, getMarginColor(stock.profit_margin, 20, 10, 5), 'Net profit %', true, false, stock.ticker, 'profit_margin')}
+                                ${createMetricRow('Operating Margin', stock.operating_margin, getMarginColor(stock.operating_margin, 15, 10, 5), 'Operating efficiency %', true, false, stock.ticker, 'operating_margin')}
+                                ${createMetricRow('Gross Margin', stock.gross_margin, getMarginColor(stock.gross_margin, 40, 25, 15), 'Pricing power %', true, false, stock.ticker, 'gross_margin')}
+                                ${createMetricRow('ROE', stock.roe, getROEColor(stock.roe), 'Return on equity', true, false, stock.ticker, 'roe')}
+                            </div>
+
+                            <!-- Financial Health -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">🛡️ Financial Health</div>
+                                ${createMetricRow('Current Ratio', stock.current_ratio, getCurrentRatioColor(stock.current_ratio), 'Short-term coverage', false, false, stock.ticker, 'current_ratio')}
+                                ${createMetricRow('Quick Ratio', stock.quick_ratio, getQuickRatioColor(stock.quick_ratio), 'Immediate liquidity', false, false, stock.ticker, 'quick_ratio')}
+                                ${createMetricRow('Debt/Equity', stock.debt_to_equity, getDebtColor(stock.debt_to_equity), 'Debt relative to equity', false, false, stock.ticker, 'debt_to_equity')}
+                                ${createMetricRow('Free Cash Flow', stock.free_cash_flow, 'neutral', 'Available cash', false, true, stock.ticker, null)}
+                            </div>
+
+                            <!-- Risk Metrics -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">⚠️ Risk</div>
+                                ${createMetricRow('Beta', stock.beta, getBetaColor(stock.beta), 'Volatility vs market', false, false, stock.ticker, 'beta')}
+                            </div>
+
+                            <!-- Technical Analysis -->
+                            <div class="metrics-section">
+                                <div class="metrics-section-title">📉 Technical Analysis</div>
+                                ${createMetricRow('RSI (14-Day)', stock.rsi, getRSIColor(stock.rsi), 'Relative strength index', false, false, stock.ticker, 'rsi')}
+                                ${createMetricRow('200-Day MA Distance', stock.distance_from_ma_200, getMADistanceColor(stock.distance_from_ma_200), 'Position vs MA', true, false, stock.ticker, 'distance_from_ma_200')}
+                                ${createMetricRow('MACD Histogram', stock.macd_histogram, getMACDColor(stock.macd_histogram), 'Momentum indicator', false, false, stock.ticker, 'macd_histogram')}
+                                ${createMetricRow('Bollinger Band %B', stock.bollinger_band_percent_b, getBollingerColor(stock.bollinger_band_percent_b), 'Position in bands', false, false, stock.ticker, 'bollinger_band_percent_b')}
+                                ${createMetricRow('ADX', stock.adx, getADXColor(stock.adx), 'Trend strength', false, false, stock.ticker, 'adx')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading stock analysis:', error);
+                document.getElementById('analysisLoading').innerHTML = `
+                    <div style="color: #ef4444;">Error loading stock analysis</div>
+                `;
+            }
+        }
+
+        function createMetricRow(label, value, colorClass, info, isPercentage = false, isCurrency = false, ticker = null, metricKey = null) {
+            let displayValue = value;
+
+            if (value === null || value === undefined || value === 'N/A') {
+                displayValue = 'N/A';
+                colorClass = 'neutral';
+            } else {
+                if (isPercentage) {
+                    displayValue = `${value.toFixed(2)}%`;
+                } else if (isCurrency) {
+                    displayValue = `€${(value / 1000000).toFixed(1)}M`;
+                } else {
+                    displayValue = typeof value === 'number' ? value.toFixed(2) : value;
+                }
+            }
+
+            // Determine if metric is chartable
+            const isClickable = ticker && metricKey && displayValue !== 'N/A';
+            const clickHandler = isClickable ? `onclick="openMetricChart('${ticker}', '${metricKey}', '${label}')"` : '';
+            const clickableClass = isClickable ? 'clickable' : '';
+
+            return `
+                <div class="metric-row ${clickableClass}" ${clickHandler}>
+                    <div>
+                        <div class="metric-label">${label}</div>
+                        <div class="metric-info">${info}</div>
+                    </div>
+                    <div class="metric-value ${colorClass}">${displayValue}</div>
+                </div>
+            `;
+        }
+
+        function getPEColor(pe) {
+            if (pe === null || pe === undefined || pe === 'N/A') return 'neutral';
+            if (pe < 0) return 'bad'; // Negative earnings
+            if (pe < 15) return 'good'; // Undervalued
+            if (pe < 25) return 'neutral'; // Fair value
+            if (pe < 40) return 'warning'; // Expensive
+            return 'bad'; // Very expensive
+        }
+
+        function getPBColor(pb) {
+            if (pb === null || pb === undefined || pb === 'N/A') return 'neutral';
+            if (pb < 1) return 'good'; // Below book value
+            if (pb < 3) return 'neutral'; // Reasonable
+            if (pb < 5) return 'warning'; // High
+            return 'bad'; // Very high
+        }
+
+        function getROEColor(roe) {
+            if (roe === null || roe === undefined || roe === 'N/A') return 'neutral';
+            if (roe < 0) return 'bad'; // Losing money
+            if (roe < 10) return 'warning'; // Low profitability
+            if (roe < 15) return 'neutral'; // Decent
+            return 'good'; // Excellent profitability (15%+)
+        }
+
+        function getDebtColor(debt) {
+            if (debt === null || debt === undefined || debt === 'N/A') return 'neutral';
+            if (debt < 0.5) return 'good'; // Low debt
+            if (debt < 1.0) return 'neutral'; // Moderate debt
+            if (debt < 2.0) return 'warning'; // High debt
+            return 'bad'; // Very high debt (risky)
+        }
+
+        function getGrowthColor(growth, goodThreshold) {
+            if (growth === null || growth === undefined || growth === 'N/A') return 'neutral';
+            if (growth < 0) return 'bad'; // Negative growth
+            if (growth < goodThreshold * 0.33) return 'warning'; // Low growth
+            if (growth < goodThreshold) return 'neutral'; // Moderate growth
+            return 'good'; // High growth
+        }
+
+        function getMarginColor(margin, goodThreshold, neutralThreshold, warningThreshold) {
+            if (margin === null || margin === undefined || margin === 'N/A') return 'neutral';
+            if (margin < 0) return 'bad'; // Negative margin
+            if (margin < warningThreshold) return 'warning'; // Low margin
+            if (margin < neutralThreshold) return 'warning'; // Below average
+            if (margin < goodThreshold) return 'neutral'; // Average
+            return 'good'; // High margin
+        }
+
+        function getCurrentRatioColor(ratio) {
+            if (ratio === null || ratio === undefined || ratio === 'N/A') return 'neutral';
+            if (ratio < 1.0) return 'bad'; // Can't cover short-term debts
+            if (ratio < 1.5) return 'warning'; // Tight liquidity
+            if (ratio < 2.0) return 'neutral'; // Acceptable
+            return 'good'; // Strong liquidity
+        }
+
+        function getQuickRatioColor(ratio) {
+            if (ratio === null || ratio === undefined || ratio === 'N/A') return 'neutral';
+            if (ratio < 0.5) return 'bad'; // Very low liquidity
+            if (ratio < 1.0) return 'warning'; // Low liquidity
+            if (ratio < 1.5) return 'neutral'; // Acceptable
+            return 'good'; // Strong liquidity
+        }
+
+        function getDividendYieldColor(yield_pct) {
+            if (yield_pct === null || yield_pct === undefined || yield_pct === 'N/A') return 'neutral';
+            if (yield_pct < 1) return 'warning'; // Very low yield
+            if (yield_pct < 2) return 'neutral'; // Low yield
+            if (yield_pct < 4) return 'neutral'; // Moderate yield
+            return 'good'; // High yield (4%+)
+        }
+
+        function getPayoutRatioColor(ratio) {
+            if (ratio === null || ratio === undefined || ratio === 'N/A') return 'neutral';
+            if (ratio < 20) return 'warning'; // Very low - may not be sustainable
+            if (ratio < 30) return 'neutral'; // Conservative
+            if (ratio < 60) return 'good'; // Healthy range
+            if (ratio < 75) return 'neutral'; // Moderate
+            return 'warning'; // High - may not be sustainable (>75%)
+        }
+
+        function getBetaColor(beta) {
+            if (beta === null || beta === undefined || beta === 'N/A') return 'neutral';
+            if (beta < 0.8) return 'good'; // Low volatility
+            if (beta < 1.2) return 'neutral'; // Average volatility
+            if (beta < 1.5) return 'warning'; // High volatility
+            return 'bad'; // Very high volatility
+        }
+
+        // Technical Analysis Color Functions
+        function getRSIColor(rsi) {
+            if (rsi === null || rsi === undefined || rsi === 'N/A') return 'neutral';
+            if (rsi >= 30 && rsi <= 50) return 'good'; // Sweet spot
+            if (rsi > 70) return 'bad'; // Overbought
+            if (rsi < 30) return 'warning'; // Oversold (could bounce)
+            return 'neutral'; // Between 50-70
+        }
+
+        function getMADistanceColor(distance) {
+            if (distance === null || distance === undefined || distance === 'N/A') return 'neutral';
+            if (distance > 0) return 'good'; // Above 200-day MA (uptrend)
+            return 'bad'; // Below 200-day MA (downtrend)
+        }
+
+        function getMACDColor(macd) {
+            if (macd === null || macd === undefined || macd === 'N/A') return 'neutral';
+            if (macd > 0) return 'good'; // Positive momentum
+            return 'bad'; // Negative momentum
+        }
+
+        function getBollingerColor(percentB) {
+            if (percentB === null || percentB === undefined || percentB === 'N/A') return 'neutral';
+            if (percentB >= 0.2 && percentB <= 0.8) return 'good'; // Stable range
+            if (percentB > 1.0) return 'bad'; // Extreme high (overbought)
+            if (percentB < 0) return 'bad'; // Extreme low (oversold)
+            return 'warning'; // Between bands edges
+        }
+
+        function getADXColor(adx) {
+            if (adx === null || adx === undefined || adx === 'N/A') return 'neutral';
+            if (adx > 25) return 'good'; // Strong trend
+            if (adx < 20) return 'bad'; // Weak/no trend
+            return 'warning'; // Developing trend
+        }
+
+        // Chart modal functionality
+        let currentChart = null;
+
+        function openMetricChart(ticker, metric, label) {
+            const modal = document.getElementById('chartModal');
+            const chartTitle = document.getElementById('chartTitle');
+            const chartSubtitle = document.getElementById('chartSubtitle');
+            const chartLoading = document.getElementById('chartLoading');
+            const chartContainer = document.getElementById('chartContainer');
+
+            // Show modal
+            modal.classList.add('active');
+            chartTitle.textContent = label;
+            chartSubtitle.textContent = `${ticker} - Historical Data`;
+            chartLoading.style.display = 'block';
+            chartContainer.style.display = 'none';
+
+            // Destroy previous chart if exists
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+
+            // Fetch and render chart
+            fetch(`/api/metric-history?ticker=${ticker}&metric=${metric}&period=1y`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        chartLoading.textContent = `Error: ${data.error}`;
+                        return;
+                    }
+
+                    chartLoading.style.display = 'none';
+                    chartContainer.style.display = 'block';
+
+                    renderChart(data, label, metric);
+                })
+                .catch(error => {
+                    console.error('Error fetching chart data:', error);
+                    chartLoading.textContent = 'Error loading chart data';
+                });
+        }
+
+        function closeChartModal() {
+            const modal = document.getElementById('chartModal');
+            modal.classList.remove('active');
+
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+        function renderChart(data, label, metric) {
+            const ctx = document.getElementById('metricChart').getContext('2d');
+
+            // Determine chart color based on metric type
+            let borderColor = '#667eea';
+            let backgroundColor = 'rgba(102, 126, 234, 0.1)';
+            let fillArea = true;
+
+            // Technical indicators get different colors
+            if (metric === 'rsi') {
+                borderColor = '#f59e0b';
+                backgroundColor = 'rgba(245, 158, 11, 0.1)';
+            } else if (metric === 'macd_histogram') {
+                borderColor = '#10b981';
+                backgroundColor = 'rgba(16, 185, 129, 0.1)';
+            } else if (metric.includes('margin') || metric.includes('growth')) {
+                borderColor = '#8b5cf6';
+                backgroundColor = 'rgba(139, 92, 246, 0.1)';
+            }
+
+            // Add zero line for some metrics
+            const annotations = {};
+            if (['rsi', 'distance_from_ma_200', 'macd_histogram', 'bollinger_band_percent_b'].includes(metric)) {
+                annotations.line1 = {
+                    type: 'line',
+                    yMin: 0,
+                    yMax: 0,
+                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                    borderWidth: 2,
+                    borderDash: [5, 5]
+                };
+            }
+
+            // RSI specific threshold lines
+            if (metric === 'rsi') {
+                annotations.line2 = {
+                    type: 'line',
+                    yMin: 70,
+                    yMax: 70,
+                    borderColor: 'rgba(239, 68, 68, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Overbought (70)',
+                        enabled: true,
+                        position: 'end'
+                    }
+                };
+                annotations.line3 = {
+                    type: 'line',
+                    yMin: 30,
+                    yMax: 30,
+                    borderColor: 'rgba(34, 197, 94, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    label: {
+                        content: 'Oversold (30)',
+                        enabled: true,
+                        position: 'end'
+                    }
+                };
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: label,
+                        data: data.values,
+                        borderColor: borderColor,
+                        backgroundColor: backgroundColor,
+                        borderWidth: 2,
+                        fill: fillArea,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: borderColor,
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.parsed.y;
+                                    if (metric.includes('margin') || metric.includes('growth') ||
+                                        metric === 'distance_from_ma_200' || metric === 'roe') {
+                                        return `${label}: ${value.toFixed(2)}%`;
+                                    }
+                                    return `${label}: ${value.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 8
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    if (metric.includes('margin') || metric.includes('growth') ||
+                                        metric === 'distance_from_ma_200' || metric === 'roe') {
+                                        return value.toFixed(0) + '%';
+                                    }
+                                    return value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeChartModal();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('chartModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChartModal();
+            }
+        });
+
+        // News Feed Functions
+        // Store news data globally for summarization
+        let currentNewsData = [];
+
+        async function loadNewsFeed() {
+            try {
+                const response = await fetch('/api/stock-news');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('newsLoading').textContent = 'Error loading news';
+                    return;
+                }
+
+                if (!data.news || data.news.length === 0) {
+                    document.getElementById('newsLoading').style.display = 'none';
+                    document.getElementById('newsGrid').style.display = 'block';
+                    document.getElementById('newsGrid').innerHTML = `
+                        <div class="news-empty">No news articles found for your holdings.</div>
+                    `;
+                    return;
+                }
+
+                // Store news data for summarization
+                currentNewsData = data.news;
+
+                document.getElementById('newsLoading').style.display = 'none';
+                document.getElementById('newsGrid').style.display = 'flex';
+
+                const newsGrid = document.getElementById('newsGrid');
+                newsGrid.innerHTML = data.news.map(article => {
+                    // Clean up description (remove HTML tags)
+                    let description = article.description || '';
+                    description = description.replace(/<[^>]*>/g, '').trim();
+
+                    const publisher = article.publisher || 'Yahoo Finance';
+                    const link = article.link || '#';
+
+                    return `
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="news-card-link">
+                            <div class="news-card">
+                                <div class="news-ticker-badge">${article.ticker}</div>
+                                <div class="news-content">
+                                    <div class="news-title">${article.title}</div>
+                                    <div class="news-meta">
+                                        <span class="news-date">${article.date}</span>
+                                        <span class="news-source">${publisher}</span>
+                                    </div>
+                                    ${description ? `<div class="news-description">${description}</div>` : ''}
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+
+                // Automatically generate summaries
+                summarizeNews();
+
+            } catch (error) {
+                console.error('Error loading news feed:', error);
+                document.getElementById('newsLoading').textContent = 'Error loading news feed';
+            }
+        }
+
+        // Convert structured text to clean HTML with labeled sections
+        function formatSummaryText(text) {
+            if (!text) return '<div class="summary-sections"><p class="summary-error-text">No summary available</p></div>';
+
+            // Define the category labels and their display icons
+            const categories = [
+                { label: 'Price Movements & Financial Performance', icon: '📈' },
+                { label: 'Important Company Announcements/Events', icon: '📢' },
+                { label: 'Market Sentiment & Analyst Views', icon: '💭' },
+                { label: 'Risks & Opportunities', icon: '⚠️' }
+            ];
+
+            let result = '<div class="summary-sections">';
+            let foundAny = false;
+
+            for (const { label, icon } of categories) {
+                // Create flexible regex to match this category
+                // Handle variations like "Price Movements and Financial Performance" or with extra spaces
+                const escapedLabel = label.replace(/[&\/]/g, '(?:&|and|/|,)').replace(/\s+/g, '\\s+');
+                const regex = new RegExp(escapedLabel + '\\s*:\\s*(.+?)(?=(?:Price Movements|Important Company|Market Sentiment|Risks).*?:|$)', 'is');
+                const match = text.match(regex);
+
+                if (match && match[1]) {
+                    let content = match[1].trim();
+                    // Clean up any remaining formatting issues
+                    content = content.replace(/\n+/g, ' ').replace(/\s+/g, ' ');
+                    foundAny = true;
+
+                    result += `
+                        <div class="summary-section">
+                            <div class="summary-section-label">${icon} ${label}</div>
+                            <div class="summary-section-content">${content}</div>
+                        </div>
+                    `;
+                } else {
+                    // Show placeholder for missing sections
+                    result += `
+                        <div class="summary-section">
+                            <div class="summary-section-label">${icon} ${label}</div>
+                            <div class="summary-section-content summary-no-data">No significant updates reported.</div>
+                        </div>
+                    `;
+                }
+            }
+
+            result += '</div>';
+            return result;
+        }
+
+        async function summarizeNews() {
+            const summariesContainer = document.getElementById('summariesContainer');
+
+            // Show loading state
+            summariesContainer.innerHTML = '<div class="summary-loading"><span class="loading-spinner"></span> Generating AI summaries...</div>';
+
+            // Group news by ticker
+            const newsByTicker = {};
+            currentNewsData.forEach(article => {
+                if (!newsByTicker[article.ticker]) {
+                    newsByTicker[article.ticker] = [];
+                }
+                newsByTicker[article.ticker].push({
+                    title: article.title,
+                    description: article.description || '',
+                    date: article.date
+                });
+            });
+
+            try {
+                const response = await fetch('/api/summarize-news', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ news_by_ticker: newsByTicker })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Display summaries
+                const summaries = data.summaries;
+                const tickerNames = Object.keys(summaries);
+
+                if (tickerNames.length === 0) {
+                    summariesContainer.innerHTML = '<div class="summary-empty">No summaries could be generated.</div>';
+                } else {
+                    summariesContainer.innerHTML = `
+                        <div class="summaries-grid">
+                            ${tickerNames.map(ticker => `
+                                <div class="summary-card">
+                                    <div class="summary-header">
+                                        <span class="summary-ticker">${ticker}</span>
+                                        <span class="summary-badge">AI Summary</span>
+                                    </div>
+                                    <div class="summary-text">${formatSummaryText(summaries[ticker])}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error generating summaries:', error);
+                summariesContainer.innerHTML = `<div class="summary-error">Error generating summaries: ${error.message}. Make sure Ollama is running locally.</div>`;
+            }
+        }
+
+        // Cache configuration
+        const CACHE_KEY_PREFIX = 'holdings_cache_';
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+        function setCache(key, data) {
+            const cacheData = {
+                data: data,
+                timestamp: Date.now()
+            };
+            sessionStorage.setItem(CACHE_KEY_PREFIX + key, JSON.stringify(cacheData));
+        }
+
+        function getCache(key) {
+            const cached = sessionStorage.getItem(CACHE_KEY_PREFIX + key);
+            if (!cached) return null;
+
+            const cacheData = JSON.parse(cached);
+            const age = Date.now() - cacheData.timestamp;
+
+            // Return cached data if still valid
+            if (age < CACHE_DURATION) {
+                return cacheData.data;
+            }
+
+            // Cache expired, remove it
+            sessionStorage.removeItem(CACHE_KEY_PREFIX + key);
+            return null;
+        }
+
+        function clearCache() {
+            Object.keys(sessionStorage).forEach(key => {
+                if (key.startsWith(CACHE_KEY_PREFIX)) {
+                    sessionStorage.removeItem(key);
+                }
+            });
+        }
+
+        // Wrap original functions with caching
+        async function loadPortfolioWithCache() {
+            const cached = getCache('portfolio');
+            if (cached) {
+                console.log('Using cached portfolio data');
+                renderPortfolio(cached);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/portfolio');
+                const data = await response.json();
+                setCache('portfolio', data);
+                renderPortfolio(data);
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+                document.getElementById('loading').textContent = 'Error loading portfolio data';
+            }
+        }
+
+        function renderPortfolio(data) {
+            document.getElementById('totalValue').textContent = `€${data.total_value.toLocaleString()}`;
+            document.getElementById('totalGain').textContent = `€${data.total_gain.toLocaleString()}`;
+
+            const gainPercentageEl = document.getElementById('gainPercentage');
+            const isPositive = data.gain_percentage >= 0;
+            gainPercentageEl.textContent = `${isPositive ? '+' : ''}${data.gain_percentage}%`;
+            gainPercentageEl.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+
+            document.getElementById('investmentCount').textContent = data.investments.length;
+
+            const investmentsGrid = document.getElementById('investmentsGrid');
+            investmentsGrid.innerHTML = data.investments.map(inv => {
+                const isPositive = inv.change >= 0;
+                const gainIsPositive = inv.absolute_gain_loss >= 0;
+                const fxIsPositive = inv.fx_impact >= 0;
+                const hasFxImpact = inv.currency !== 'EUR' && Math.abs(inv.fx_impact) > 0.01;
+                const logoUrl = getLogoUrl(inv.symbol);
+
+                return `
+                    <div class="investment-card" onclick="openStockPanel('${inv.symbol}', '${inv.name.replace(/'/g, "\\'")}')">
+                        <div class="investment-header">
+                            <div class="investment-info">
+                                <img src="${logoUrl}" alt="${inv.symbol} logo" class="investment-logo" onerror="this.style.display='none'">
+                                <div class="investment-text">
+                                    <div class="investment-name">${inv.name}</div>
+                                </div>
+                            </div>
+                            <div class="investment-symbol">${inv.symbol}</div>
+                        </div>
+                        <div class="investment-details">
+                            <div class="detail">
+                                <div class="detail-label">Shares</div>
+                                <div class="detail-value">${inv.shares}</div>
+                            </div>
+                            <div class="detail">
+                                <div class="detail-label">Purchase Price</div>
+                                <div class="detail-value">€${inv.purchase_price.toFixed(2)}</div>
+                            </div>
+                            <div class="detail">
+                                <div class="detail-label">Current Price</div>
+                                <div class="detail-value">€${inv.current_price.toFixed(2)}</div>
+                            </div>
+                            <div class="detail">
+                                <div class="detail-label">Change %</div>
+                                <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
+                                    ${isPositive ? '+' : ''}${inv.change.toFixed(2)}%
+                                </div>
+                            </div>
+                            <div class="detail">
+                                <div class="detail-label">Gain/Loss</div>
+                                <div class="detail-value ${gainIsPositive ? 'positive' : 'negative'}">
+                                    ${gainIsPositive ? '+' : ''}€${inv.absolute_gain_loss.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                            </div>
+                            ${hasFxImpact ? `
+                            <div class="detail">
+                                <div class="detail-label">FX Impact</div>
+                                <div class="detail-value ${fxIsPositive ? 'positive' : 'negative'}">
+                                    ${fxIsPositive ? '+' : ''}€${inv.fx_impact.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="detail" style="margin-top: 15px;">
+                            <div class="detail-label">Total Value</div>
+                            <div class="detail-value" style="font-size: 1.5rem; color: #667eea;">€${inv.value.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        async function loadRealizedHoldingsWithCache() {
+            const cached = getCache('realized');
+            if (cached) {
+                console.log('Using cached realized holdings data');
+                renderRealizedHoldings(cached);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/realized-holdings');
+                const data = await response.json();
+                setCache('realized', data);
+                renderRealizedHoldings(data);
+            } catch (error) {
+                console.error('Error loading realized holdings:', error);
+                document.getElementById('realizedHoldingsContainer').innerHTML = `
+                    <div class="chart-container" style="text-align: center; color: #ef4444;">
+                        <p>Error loading realized holdings</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderRealizedHoldings(data) {
+            if (data.realized_holdings && data.realized_holdings.length > 0) {
+                document.getElementById('realizedStats').style.display = 'grid';
+                document.getElementById('totalProceeds').textContent = `€${data.total_proceeds.toLocaleString()}`;
+                document.getElementById('totalCostBasis').textContent = `€${data.total_cost_basis.toLocaleString()}`;
+                document.getElementById('totalRealizedGain').textContent = `€${data.total_realized_gain.toLocaleString()}`;
+
+                const isPositive = data.total_realized_gain >= 0;
+                const percentEl = document.getElementById('totalRealizedPercent');
+                percentEl.textContent = `${isPositive ? '+' : ''}${data.total_realized_gain_percent}%`;
+                percentEl.className = `stat-change ${isPositive ? 'positive' : 'negative'}`;
+
+                const container = document.getElementById('realizedHoldingsContainer');
+                container.innerHTML = `
+                    <div class="chart-container">
+                        <h2>Sold Stock History</h2>
+                        <div class="investments-grid">
+                            ${data.realized_holdings.map(holding => {
+                                const isGain = holding.realized_gain >= 0;
+                                const logoUrl = getLogoUrl(holding.ticker);
+                                return `
+                                    <div class="investment-card" style="border-left-color: ${isGain ? '#10b981' : '#ef4444'};">
+                                        <div class="investment-header">
+                                            <div class="investment-info">
+                                                <img src="${logoUrl}" alt="${holding.ticker} logo" class="investment-logo" onerror="this.style.display='none'">
+                                                <div class="investment-text">
+                                                    <div class="investment-name">${holding.name}</div>
+                                                </div>
+                                            </div>
+                                            <div class="investment-symbol">${holding.ticker}</div>
+                                        </div>
+                                        <div class="investment-details">
+                                            <div class="detail">
+                                                <div class="detail-label">Shares Sold</div>
+                                                <div class="detail-value">${holding.shares_sold}</div>
+                                            </div>
+                                            <div class="detail">
+                                                <div class="detail-label">Sale Price</div>
+                                                <div class="detail-value">€${holding.sale_price.toFixed(2)}</div>
+                                            </div>
+                                            <div class="detail">
+                                                <div class="detail-label">Sale Date</div>
+                                                <div class="detail-value">${holding.sale_date}</div>
+                                            </div>
+                                            <div class="detail">
+                                                <div class="detail-label">Cost Basis</div>
+                                                <div class="detail-value">€${holding.cost_basis.toFixed(2)}</div>
+                                            </div>
+                                            <div class="detail">
+                                                <div class="detail-label">Proceeds</div>
+                                                <div class="detail-value">€${holding.proceeds.toFixed(2)}</div>
+                                            </div>
+                                            <div class="detail">
+                                                <div class="detail-label">Realized Gain/Loss</div>
+                                                <div class="detail-value ${isGain ? 'positive' : 'negative'}">
+                                                    ${isGain ? '+' : ''}€${Math.abs(holding.realized_gain).toFixed(2)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="detail" style="margin-top: 15px;">
+                                            <div class="detail-label">Return</div>
+                                            <div class="detail-value ${isGain ? 'positive' : 'negative'}" style="font-size: 1.5rem;">
+                                                ${isGain ? '+' : ''}${holding.realized_gain_percent.toFixed(2)}%
+                                            </div>
+                                        </div>
+                                        ${holding.complete_exit ? '<div style="margin-top: 10px; padding: 8px; background: #f0f4ff; border-radius: 8px; text-align: center; font-size: 0.85rem; font-weight: 600; color: #667eea;">Complete Exit</div>' : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('realizedHoldingsContainer').innerHTML = `
+                    <div class="chart-container" style="text-align: center; color: #666;">
+                        <p>No realized holdings yet. Sell some stocks to see them here.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadStockAnalysisWithCache() {
+            const cached = getCache('analysis');
+            if (cached) {
+                console.log('Using cached stock analysis data');
+                renderStockAnalysis(cached);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/stock-analysis');
+                const data = await response.json();
+                setCache('analysis', data);
+                renderStockAnalysis(data);
+            } catch (error) {
+                console.error('Error loading stock analysis:', error);
+                document.getElementById('analysisLoading').textContent = 'Error loading analysis';
+            }
+        }
+
+        async function loadNewsFeedWithCache() {
+            const cached = getCache('news');
+            if (cached) {
+                console.log('Using cached news data');
+                renderNewsFeed(cached);
+                // Also check for cached summaries
+                const cachedSummaries = getCache('summaries');
+                if (cachedSummaries) {
+                    renderSummaries(cachedSummaries);
+                } else {
+                    summarizeNewsWithCache();
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/stock-news');
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('newsLoading').textContent = 'Error loading news';
+                    return;
+                }
+
+                if (!data.news || data.news.length === 0) {
+                    document.getElementById('newsLoading').style.display = 'none';
+                    document.getElementById('newsGrid').style.display = 'block';
+                    document.getElementById('newsGrid').innerHTML = `
+                        <div class="news-empty">No news articles found for your holdings.</div>
+                    `;
+                    return;
+                }
+
+                setCache('news', data);
+                currentNewsData = data.news;
+                renderNewsFeed(data);
+                summarizeNewsWithCache();
+
+            } catch (error) {
+                console.error('Error loading news feed:', error);
+                document.getElementById('newsLoading').textContent = 'Error loading news feed';
+            }
+        }
+
+        function renderNewsFeed(data) {
+            currentNewsData = data.news;
+            document.getElementById('newsLoading').style.display = 'none';
+            document.getElementById('newsGrid').style.display = 'flex';
+
+            const newsGrid = document.getElementById('newsGrid');
+            newsGrid.innerHTML = data.news.map(article => {
+                let description = article.description || '';
+                description = description.replace(/<[^>]*>/g, '').trim();
+                const publisher = article.publisher || 'Yahoo Finance';
+                const link = article.link || '#';
+
+                return `
+                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="news-card-link">
+                        <div class="news-card">
+                            <div class="news-ticker-badge">${article.ticker}</div>
+                            <div class="news-content">
+                                <div class="news-title">${article.title}</div>
+                                <div class="news-meta">
+                                    <span class="news-date">${article.date}</span>
+                                    <span class="news-source">${publisher}</span>
+                                </div>
+                                ${description ? `<div class="news-description">${description}</div>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // Global abort controller for summaries
+        let summaryAbortController = null;
+
+        function skipSummaries() {
+            if (summaryAbortController) {
+                summaryAbortController.abort();
+            }
+            const summariesContainer = document.getElementById('summariesContainer');
+            summariesContainer.innerHTML = '<div class="summary-skipped">AI summaries skipped. <button onclick="summarizeNewsWithCache()" class="retry-summaries-btn">Retry</button></div>';
+        }
+
+        async function summarizeNewsWithCache() {
+            const cached = getCache('summaries');
+            if (cached) {
+                console.log('Using cached summaries');
+                renderSummaries(cached);
+                return;
+            }
+
+            const summariesContainer = document.getElementById('summariesContainer');
+            summariesContainer.innerHTML = `
+                <div class="summary-loading">
+                    <span class="loading-spinner"></span> Generating AI summaries...
+                    <button onclick="skipSummaries()" class="skip-summaries-btn">Skip</button>
+                </div>
+            `;
+
+            const newsByTicker = {};
+            currentNewsData.forEach(article => {
+                if (!newsByTicker[article.ticker]) {
+                    newsByTicker[article.ticker] = [];
+                }
+                newsByTicker[article.ticker].push({
+                    title: article.title,
+                    description: article.description || '',
+                    date: article.date
+                });
+            });
+
+            try {
+                // Use AbortController for timeout and skip functionality
+                summaryAbortController = new AbortController();
+                const timeoutId = setTimeout(() => summaryAbortController.abort(), 120000);
+
+                const response = await fetch('/api/summarize-news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ news_by_ticker: newsByTicker }),
+                    signal: summaryAbortController.signal
+                });
+
+                clearTimeout(timeoutId);
+                summaryAbortController = null;
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                setCache('summaries', data.summaries);
+                renderSummaries(data.summaries);
+
+            } catch (error) {
+                summaryAbortController = null;
+                console.error('Error generating summaries:', error);
+                if (error.name === 'AbortError') {
+                    // Check if it was a user skip (message already set) or timeout
+                    if (!summariesContainer.innerHTML.includes('skipped')) {
+                        summariesContainer.innerHTML = `<div class="summary-error">Summary generation timed out. <button onclick="summarizeNewsWithCache()" class="retry-summaries-btn">Retry</button></div>`;
+                    }
+                } else {
+                    summariesContainer.innerHTML = `<div class="summary-error">Error: ${error.message}. <button onclick="summarizeNewsWithCache()" class="retry-summaries-btn">Retry</button></div>`;
+                }
+            }
+        }
+
+        function renderSummaries(summaries) {
+            const summariesContainer = document.getElementById('summariesContainer');
+            const tickerNames = Object.keys(summaries);
+
+            if (tickerNames.length === 0) {
+                summariesContainer.innerHTML = '<div class="summary-empty">No summaries could be generated.</div>';
+            } else {
+                summariesContainer.innerHTML = `
+                    <div class="summaries-grid">
+                        ${tickerNames.map(ticker => `
+                            <div class="summary-card">
+                                <div class="summary-header">
+                                    <span class="summary-ticker">${ticker}</span>
+                                    <span class="summary-badge">AI Summary</span>
+                                </div>
+                                <div class="summary-text">${formatSummaryText(summaries[ticker])}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // Keep original loadPortfolio for refresh after actions (buy/sell)
+        async function loadPortfolio() {
+            clearCache(); // Clear cache when explicitly refreshing
+            await loadPortfolioWithCache();
+        }
+
+        async function loadRealizedHoldings() {
+            await loadRealizedHoldingsWithCache();
+        }
+
+        async function loadStockAnalysis() {
+            await loadStockAnalysisWithCache();
+        }
+
+        async function loadNewsFeed() {
+            await loadNewsFeedWithCache();
+        }
+
+        // Load data on page load using cache
+        // Main content loads first (awaited in sequence for dependencies)
+        loadPortfolioWithCache();
+        loadRealizedHoldingsWithCache();
+        loadStockAnalysisWithCache();
+
+        // News feed loads independently (non-blocking) - won't hold up main page
+        setTimeout(() => {
+            loadNewsFeedWithCache();
+        }, 100);
+    </script>
+
+    <!-- Chart Modal -->
+    <div id="chartModal" class="chart-modal">
+        <div class="chart-modal-content">
+            <div class="chart-modal-header">
+                <div>
+                    <div class="chart-modal-title" id="chartTitle">Metric Chart</div>
+                    <div class="chart-modal-subtitle" id="chartSubtitle"></div>
+                </div>
+                <button class="chart-modal-close" onclick="closeChartModal()">×</button>
+            </div>
+            <div class="chart-loading" id="chartLoading">Loading chart data...</div>
+            <div class="modal-chart-container" id="chartContainer" style="display: none;">
+                <canvas id="metricChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-button" id="chatbotButton" onclick="toggleChatbot()">
+        <svg viewBox="0 0 24 24" id="chatIcon">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg>
+        <svg viewBox="0 0 24 24" id="closeIcon" style="display: none;">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+    </button>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <div class="chatbot-header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <div class="chatbot-header-text">
+                <h3>Portfolio Assistant</h3>
+                <p>Ask me about your investments</p>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="chat-message bot">
+                Hello! I'm your portfolio assistant. Ask me anything about your holdings, market trends, or investment strategies.
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="handleChatKeypress(event)">
+            <button onclick="sendChatMessage()" id="sendButton">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChatbot() {
+            const container = document.getElementById('chatbotContainer');
+            const button = document.getElementById('chatbotButton');
+            const chatIcon = document.getElementById('chatIcon');
+            const closeIcon = document.getElementById('closeIcon');
+
+            container.classList.toggle('open');
+            button.classList.toggle('active');
+
+            if (container.classList.contains('open')) {
+                chatIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+                document.getElementById('chatInput').focus();
+            } else {
+                chatIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+            }
+        }
+
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('chatMessages');
+
+            // Add user message
+            messagesContainer.innerHTML += `
+                <div class="chat-message user">${escapeHtml(message)}</div>
+            `;
+
+            input.value = '';
+            input.disabled = true;
+            document.getElementById('sendButton').disabled = true;
+
+            // Add typing indicator
+            messagesContainer.innerHTML += `
+                <div class="chat-message bot typing" id="typingIndicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                // Remove typing indicator
+                document.getElementById('typingIndicator')?.remove();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Add bot response
+                messagesContainer.innerHTML += `
+                    <div class="chat-message bot">${formatChatResponse(data.response)}</div>
+                `;
+
+            } catch (error) {
+                document.getElementById('typingIndicator')?.remove();
+                messagesContainer.innerHTML += `
+                    <div class="chat-message bot">Sorry, I encountered an error. Please make sure Ollama is running and try again.</div>
+                `;
+            }
+
+            input.disabled = false;
+            document.getElementById('sendButton').disabled = false;
+            input.focus();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatChatResponse(text) {
+            // Convert line breaks to <br>
+            text = text.replace(/\n/g, '<br>');
+            // Convert **bold** to <strong>
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            return text;
+        }
     </script>
 </body>
 </html>

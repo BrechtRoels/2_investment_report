@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Invested - Portfolio Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+            background: #f0f4ff;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            text-align: center;
+            flex: 1;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .table-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .record-count {
+            font-size: 0.9rem;
+            color: #666;
+            background: #f0f4ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            color: #333;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        td {
+            padding: 20px 15px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 100px;
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Side Panel Styles */
+        .side-panel {
+            position: fixed;
+            right: -500px;
+            top: 0;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .side-panel.active {
+            right: 0;
+        }
+
+        .side-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .side-panel-overlay.active {
+            display: block;
+        }
+
+        .side-panel-header {
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .side-panel-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .close-panel {
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-panel:hover {
+            opacity: 0.8;
+        }
+
+        .side-panel-content {
+            padding: 30px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f9fafb;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f4ff;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Confirmation Modal */
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirmation-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .confirmation-content h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .confirmation-content p {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .confirmation-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .confirmation-actions button {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .side-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <div class="logo">💎 Portfolio Tracker</div>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/holdings">Holdings</a>
+                <a href="/transactions">Transactions</a>
+                <a href="/dividends">Dividends</a>
+                <a href="/money-invested" class="active">Money Invested</a>
+                <a href="/capital-gains-tax">Tax Calculator</a>
+                <a href="/logout" style="color: #ef4444;">Logout</a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <header>
+            <div></div>
+            <div class="header-content">
+                <h1>Money Invested</h1>
+                <p>Track your investment deposits and contributions</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add Record</button>
+        </header>
+
+        <div id="loading" class="loading pulse">Loading records...</div>
+
+        <div id="content" style="display: none;">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Invested</div>
+                    <div class="stat-value" id="totalInvested">€0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Year</div>
+                    <div class="stat-value" id="yearInvested">€0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="monthInvested">€0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Records</div>
+                    <div class="stat-value" id="recordCount">0</div>
+                </div>
+            </div>
+
+            <!-- Records Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Investment Records</h2>
+                    <span class="record-count" id="tableCount">0 records</span>
+                </div>
+                <div id="recordsTableContainer"></div>
+            </div>
+        </div>
+
+        <!-- Side Panel Overlay -->
+        <div class="side-panel-overlay" id="sidePanelOverlay" onclick="closeSidePanel()"></div>
+
+        <!-- Side Panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="side-panel-header">
+                <h2>Record Details</h2>
+                <button class="close-panel" onclick="closeSidePanel()">&times;</button>
+            </div>
+            <div class="side-panel-content">
+                <div class="panel-actions">
+                    <button class="btn-edit" id="editBtn" onclick="enableEdit()">Edit</button>
+                    <button class="btn-save" id="saveBtn" onclick="showSaveConfirmation()" style="display: none;">Save</button>
+                    <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display: none;">Cancel</button>
+                    <button class="btn-delete" id="deleteBtn" onclick="showDeleteConfirmation()">Delete</button>
+                </div>
+
+                <form id="recordForm">
+                    <input type="hidden" id="recordId">
+
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editAmount">Amount (€)</label>
+                        <input type="number" id="editAmount" step="0.01" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editAction">Action</label>
+                        <select id="editAction" disabled>
+                            <option value="DEPOSIT">Deposit</option>
+                            <option value="REFUND">Refund</option>
+                            <option value="WITHDRAW">Withdraw</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal for Save -->
+        <div class="confirmation-modal" id="saveConfirmationModal">
+            <div class="confirmation-content">
+                <h3>Confirm Changes</h3>
+                <p>Are you sure you want to save these changes to the record?</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="hideSaveConfirmation()">Cancel</button>
+                    <button class="btn-save" onclick="saveRecord()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal for Delete -->
+        <div class="confirmation-modal" id="deleteConfirmationModal">
+            <div class="confirmation-content">
+                <h3>Confirm Deletion</h3>
+                <p>Are you sure you want to delete this record? This action cannot be undone.</p>
+                <div class="confirmation-actions">
+                    <button class="btn-cancel" onclick="hideDeleteConfirmation()">Cancel</button>
+                    <button class="btn-delete" onclick="deleteRecord()">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Record Modal -->
+        <div id="addRecordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Record</h2>
+                    <button class="close-btn" onclick="closeAddModal()">&times;</button>
+                </div>
+
+                <form id="newRecordForm" onsubmit="saveNewRecord(event)">
+                    <div class="form-group">
+                        <label for="date">Date *</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount (€) *</label>
+                        <input type="number" id="amount" step="0.01" required placeholder="1000.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="action">Action *</label>
+                        <select id="action" required>
+                            <option value="DEPOSIT">Deposit</option>
+                            <option value="REFUND">Refund</option>
+                            <option value="WITHDRAW">Withdraw</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allRecords = [];
+        let currentRecord = null;
+        let isEditMode = false;
+
+        async function loadRecords() {
+            try {
+                const response = await fetch('/api/money-invested');
+                const data = await response.json();
+                allRecords = data.records || [];
+
+                // Calculate stats
+                const total = allRecords.reduce((sum, r) => sum + r.amount, 0);
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth();
+
+                const yearAmount = allRecords
+                    .filter(r => new Date(r.date).getFullYear() === currentYear)
+                    .reduce((sum, r) => sum + r.amount, 0);
+
+                const monthAmount = allRecords
+                    .filter(r => {
+                        const d = new Date(r.date);
+                        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+                    })
+                    .reduce((sum, r) => sum + r.amount, 0);
+
+                document.getElementById('totalInvested').textContent = `€${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('yearInvested').textContent = `€${yearAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('monthInvested').textContent = `€${monthAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('recordCount').textContent = allRecords.length;
+
+                renderTable();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading records:', error);
+                document.getElementById('loading').textContent = 'Error loading records';
+            }
+        }
+
+        function renderTable() {
+            if (allRecords.length === 0) {
+                document.getElementById('recordsTableContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No records found. Add your first investment record!</p>';
+                document.getElementById('tableCount').textContent = '0 records';
+                return;
+            }
+
+            document.getElementById('tableCount').textContent = `${allRecords.length} record${allRecords.length !== 1 ? 's' : ''}`;
+
+            document.getElementById('recordsTableContainer').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allRecords.map(record => `
+                            <tr onclick="openSidePanel(${record.id})">
+                                <td>${new Date(record.date).toLocaleDateString()}</td>
+                                <td><strong>€${record.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong></td>
+                                <td>${record.action || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function openSidePanel(recordId) {
+            currentRecord = allRecords.find(r => r.id === recordId);
+            if (!currentRecord) return;
+
+            // Populate the form
+            document.getElementById('recordId').value = currentRecord.id;
+            document.getElementById('editDate').value = currentRecord.date;
+            document.getElementById('editAmount').value = currentRecord.amount;
+            document.getElementById('editAction').value = currentRecord.action || '';
+
+            // Show the side panel
+            document.getElementById('sidePanel').classList.add('active');
+            document.getElementById('sidePanelOverlay').classList.add('active');
+
+            // Reset to view mode
+            isEditMode = false;
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function closeSidePanel() {
+            document.getElementById('sidePanel').classList.remove('active');
+            document.getElementById('sidePanelOverlay').classList.remove('active');
+            cancelEdit();
+            currentRecord = null;
+        }
+
+        function enableEdit() {
+            isEditMode = true;
+
+            // Enable all fields
+            document.getElementById('editDate').disabled = false;
+            document.getElementById('editAmount').disabled = false;
+            document.getElementById('editAction').disabled = false;
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'block';
+            document.getElementById('cancelBtn').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            isEditMode = false;
+
+            // Disable all fields
+            document.getElementById('editDate').disabled = true;
+            document.getElementById('editAmount').disabled = true;
+            document.getElementById('editAction').disabled = true;
+
+            // Reset to original values if currentRecord exists
+            if (currentRecord) {
+                document.getElementById('editDate').value = currentRecord.date;
+                document.getElementById('editAmount').value = currentRecord.amount;
+                document.getElementById('editAction').value = currentRecord.action || '';
+            }
+
+            // Show/hide buttons
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function showSaveConfirmation() {
+            document.getElementById('saveConfirmationModal').classList.add('active');
+        }
+
+        function hideSaveConfirmation() {
+            document.getElementById('saveConfirmationModal').classList.remove('active');
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteConfirmationModal').classList.add('active');
+        }
+
+        function hideDeleteConfirmation() {
+            document.getElementById('deleteConfirmationModal').classList.remove('active');
+        }
+
+        async function saveRecord() {
+            const recordId = document.getElementById('recordId').value;
+
+            const updatedData = {
+                date: document.getElementById('editDate').value,
+                amount: parseFloat(document.getElementById('editAmount').value),
+                action: document.getElementById('editAction').value
+            };
+
+            try {
+                const response = await fetch(`/api/money-invested/${recordId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideSaveConfirmation();
+                    closeSidePanel();
+                    await loadRecords();
+                    alert('Record updated successfully!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error updating record:', error);
+                alert('Error updating record: ' + error.message);
+            }
+        }
+
+        async function deleteRecord() {
+            const recordId = document.getElementById('recordId').value;
+
+            try {
+                const response = await fetch(`/api/money-invested/${recordId}`, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    hideDeleteConfirmation();
+                    closeSidePanel();
+                    await loadRecords();
+                    alert('Record deleted successfully!');
+                } else {
+                    alert('Error deleting record: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                alert('Error deleting record: ' + error.message);
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('newRecordForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('addRecordModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addRecordModal').classList.remove('active');
+        }
+
+        async function saveNewRecord(event) {
+            event.preventDefault();
+
+            const recordData = {
+                date: document.getElementById('date').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                action: document.getElementById('action').value
+            };
+
+            try {
+                const response = await fetch('/api/money-invested', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(recordData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeAddModal();
+                    await loadRecords();
+                    alert('Record added successfully!');
+                } else {
+                    alert('Error saving record: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error saving record:', error);
+                alert('Error saving record: ' + error.message);
+            }
+        }
+
+        loadRecords();
+    </script>
+
+    {% include 'chatbot.html' %}
+</body>
+</html>
