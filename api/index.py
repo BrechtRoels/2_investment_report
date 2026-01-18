@@ -3138,11 +3138,28 @@ TEXT TO REFORMAT:
         return raw_text
 
 
+def is_ollama_available():
+    """Check if Ollama is running locally"""
+    try:
+        req = urllib.request.Request("http://localhost:11434/api/tags")
+        with urllib.request.urlopen(req, timeout=2) as response:
+            return response.status == 200
+    except:
+        return False
+
+
 @app.route('/api/summarize-news', methods=['POST'])
 @login_required
 def summarize_news():
     """Summarize news articles per stock using local Ollama"""
     try:
+        # Check if Ollama is available (only works locally, not on Vercel)
+        if not is_ollama_available():
+            return jsonify({
+                'error': 'AI summaries require Ollama running locally. This feature is not available on the deployed version.',
+                'summaries': {}
+            })
+
         data = request.get_json()
         news_by_ticker = data.get('news_by_ticker', {})
 
@@ -3221,6 +3238,13 @@ NEWS ARTICLES:
 def chat():
     """Chat with AI about portfolio using local Ollama"""
     try:
+        # Check if Ollama is available (only works locally, not on Vercel)
+        if not is_ollama_available():
+            return jsonify({
+                'error': 'Chatbot requires Ollama running locally. This feature is not available on the deployed version.',
+                'response': 'Sorry, the AI chatbot requires Ollama to be running locally. This feature is not available on the deployed version of the app.'
+            })
+
         data = request.get_json()
         user_message = data.get('message', '')
 

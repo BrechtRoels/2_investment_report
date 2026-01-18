@@ -8,6 +8,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
-    raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set in .env file")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("WARNING: SUPABASE_URL and SUPABASE_KEY environment variables not set!")
+    print("Please set these in Vercel Environment Variables or your local .env file")
+    # Create a dummy for import to not fail, but operations will fail
+    supabase = None
+else:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
