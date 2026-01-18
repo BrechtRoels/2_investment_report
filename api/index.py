@@ -105,6 +105,11 @@ def login():
         password = data.get('password')
 
         try:
+            # Check if supabase is configured
+            if supabase is None:
+                print("ERROR: Supabase not configured. Check SUPABASE_URL and SUPABASE_KEY environment variables.")
+                return jsonify({'success': False, 'message': 'Database not configured. Please check server configuration.'}), 500
+
             # Query user from database
             response = supabase.table("Users").select("*").eq("Username", username).execute()
 
