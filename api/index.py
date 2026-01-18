@@ -9,7 +9,22 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import urllib.request
 from werkzeug.security import check_password_hash
-from supabase_client import supabase
+from supabase import create_client, Client
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Initialize Supabase client
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("WARNING: SUPABASE_URL and SUPABASE_KEY environment variables not set!")
+    print("Please set these in Vercel Environment Variables or your local .env file")
+    supabase = None
+else:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
