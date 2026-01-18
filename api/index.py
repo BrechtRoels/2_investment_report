@@ -16,15 +16,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize Supabase client
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL") or os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY") or os.environ.get("SUPABASE_KEY")
+
+# Debug: Print whether env vars are found (not the actual values)
+print(f"[STARTUP] SUPABASE_URL set: {bool(SUPABASE_URL)}")
+print(f"[STARTUP] SUPABASE_KEY set: {bool(SUPABASE_KEY)}")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("WARNING: SUPABASE_URL and SUPABASE_KEY environment variables not set!")
     print("Please set these in Vercel Environment Variables or your local .env file")
     supabase = None
 else:
+    print(f"[STARTUP] Connecting to Supabase: {SUPABASE_URL[:30]}...")
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print("[STARTUP] Supabase client initialized successfully")
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
