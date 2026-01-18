@@ -481,8 +481,27 @@ def fetch_live_price(ticker):
         print(f"Error fetching price for {ticker}: {e}")
         return None
 
+def is_market_closed():
+    """Check if US markets are closed (simplified check based on time)"""
+    from datetime import timezone
+    now_utc = datetime.now(timezone.utc)
+    # US market closes at 21:00 UTC (4pm ET) on weekdays
+    # Consider market closed after 21:30 UTC to be safe
+    hour_utc = now_utc.hour
+    weekday = now_utc.weekday()  # 0=Monday, 6=Sunday
+
+    # Weekend - market closed
+    if weekday >= 5:
+        return True
+    # After 21:30 UTC on weekdays - market closed
+    if hour_utc >= 22 or hour_utc < 13:  # Before 13:00 UTC (pre-market) or after 22:00 UTC
+        return True
+    return False
+
+
 def fetch_and_cache_price(ticker, start_date, currency=None):
-    """Fetch price data from yfinance and cache in database"""
+    """Fetch price data from yfinance and cache in database.
+    Only caches completed trading days (not today if market is still open)."""
     try:
         print(f"[FETCH] {ticker}: Fetching from yfinance since {start_date}...")
 
@@ -496,6 +515,10 @@ def fetch_and_cache_price(ticker, start_date, currency=None):
         if hist.empty:
             return None
 
+        # Get today's date to exclude from caching if market is open
+        today = datetime.now().date()
+        market_closed = is_market_closed()
+
         # Get existing dates for this ticker from database to avoid duplicates
         existing_response = supabase.table("StockPrices").select("Date").eq("Ticker", ticker).gte("Date", start_date.isoformat()).execute()
 
@@ -503,10 +526,14 @@ def fetch_and_cache_price(ticker, start_date, currency=None):
         if existing_response.data:
             existing_dates = {datetime.fromisoformat(r['Date'].replace('Z', '+00:00')).date() for r in existing_response.data}
 
-        # Prepare records for bulk insert, excluding existing dates
+        # Prepare records for bulk insert, excluding existing dates AND today if market is open
         records = []
         for date, row in hist.iterrows():
             date_only = date.date()
+            # Skip today's date if market is still open (price isn't final yet)
+            if date_only == today and not market_closed:
+                print(f"[CACHE] {ticker}: Skipping today's price (market still open)")
+                continue
             if date_only not in existing_dates:
                 records.append({
                     "Date": date.isoformat(),
