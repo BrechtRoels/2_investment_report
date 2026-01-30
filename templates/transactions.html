@@ -1026,13 +1026,13 @@
                     </div>
                     <div id="exchangeRateSection" style="display: none;">
                         <div class="form-group">
-                            <label for="newPriceBeforeCurrency">Price Before Currency Conversion</label>
-                            <input type="text" id="newPriceBeforeCurrency" placeholder="150.00">
+                            <label for="newPriceBeforeCurrency">Price in Original Currency</label>
+                            <input type="number" id="newPriceBeforeCurrency" step="0.01" placeholder="150.00" oninput="calculateEurPrice()">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="newExchangeRate">Exchange Rate</label>
-                                <input type="text" id="newExchangeRate" placeholder="0.95">
+                                <label for="newExchangeRate">Exchange Rate (to EUR)</label>
+                                <input type="number" id="newExchangeRate" step="0.0001" placeholder="0.95" oninput="calculateEurPrice()">
                             </div>
                             <div class="form-group">
                                 <label for="newCurrencyTo">Currency To</label>
@@ -1042,7 +1042,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="newPrice">Price (€) *</label>
+                            <label for="newPrice">Price (€) * <span id="priceAutoLabel" style="display: none; color: #667eea; font-weight: normal;">(Auto-calculated)</span></label>
                             <input type="number" id="newPrice" step="0.01" required placeholder="150.00" oninput="calculateTotals()">
                         </div>
                         <div class="form-group">
@@ -1437,11 +1437,40 @@
         function toggleExchangeRateFields() {
             const currency = document.getElementById('newCurrencyFrom').value;
             const exchangeSection = document.getElementById('exchangeRateSection');
+            const priceInput = document.getElementById('newPrice');
+            const priceAutoLabel = document.getElementById('priceAutoLabel');
 
             if (currency === 'EUR') {
                 exchangeSection.style.display = 'none';
+                priceInput.readOnly = false;
+                priceInput.style.background = 'white';
+                priceInput.style.cursor = 'text';
+                priceAutoLabel.style.display = 'none';
+                // Clear the exchange rate fields
+                document.getElementById('newPriceBeforeCurrency').value = '';
+                document.getElementById('newExchangeRate').value = '';
             } else {
                 exchangeSection.style.display = 'block';
+                priceInput.readOnly = true;
+                priceInput.style.background = '#f3f4f6';
+                priceInput.style.cursor = 'not-allowed';
+                priceAutoLabel.style.display = 'inline';
+            }
+        }
+
+        function calculateEurPrice() {
+            const currency = document.getElementById('newCurrencyFrom').value;
+            if (currency === 'EUR') return;
+
+            const priceBeforeCurrency = parseFloat(document.getElementById('newPriceBeforeCurrency').value) || 0;
+            const exchangeRate = parseFloat(document.getElementById('newExchangeRate').value) || 0;
+
+            if (priceBeforeCurrency > 0 && exchangeRate > 0) {
+                // Calculate EUR price: original price × exchange rate
+                const priceInEur = priceBeforeCurrency * exchangeRate;
+                document.getElementById('newPrice').value = priceInEur.toFixed(2);
+                // Trigger totals calculation
+                calculateTotals();
             }
         }
 
@@ -1474,6 +1503,9 @@
             document.getElementById('newCurrencyTo').value = 'EUR';
             document.getElementById('newBrokerageFee').value = '0.00';
             document.getElementById('newStockMarketFee').value = '0.00';
+            document.getElementById('newPriceBeforeCurrency').value = '';
+            document.getElementById('newExchangeRate').value = '';
+            document.getElementById('newPrice').value = '';
             toggleExchangeRateFields();
             calculateTotals();
             document.getElementById('addTransactionModal').classList.add('active');
