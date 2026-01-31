@@ -418,3 +418,7 @@ CREATE TABLE StockPrices (
 | Supabase | Database | `supabase` |
 | Yahoo Finance | Stock prices, news | `yfinance` |
 | Ollama (local) | AI chat, news summaries | HTTP requests |
+
+
+SUPABASE_URL=https://yowarnqsdcffbqsgoypc.supabase.co
+SUPABASE_KEY=sb_publishable_00qx25Guv5-hshp147jbWg_iG3PtbBN
